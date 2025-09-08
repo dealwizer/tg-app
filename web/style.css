@@ -49,15 +49,17 @@
       transition: left 0.3s ease;
       z-index: 1000;
     }
-   /* Убираем увеличение на iOS */
-    @media screen and (max-width: 768px) {
-      input[type="text"],
-      input[type="number"],
-      input[type="date"] {
-        font-size: 16px; /* Предотвращает увеличение */
-        padding: 12px 15px;
-      }
-    }
+input {
+ -webkit-appearance: none;
+ -moz-appearance: none;
+ appearance: none;
+}
+
+input[type="date"] {
+ /* Дополнительные стили, чтобы поле выглядело так же, как остальные */
+ font-size: 16px;
+ height: 40px;
+}
     .sidebar.active {
       left: 0;
     }
