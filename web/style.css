@@ -1,6 +1,6 @@
 
     * {
-      margin-top: 20px;
+      margin-top: 10px;
       padding: 0;
       box-sizing: border-box;
     }
@@ -19,6 +19,7 @@
     .burger-btn {
       position: fixed;
       right: 30px;
+      top: 45px;
       z-index: 1001;
       background: #ffffff;
       color: rgb(0, 0, 0);
@@ -35,7 +36,7 @@
     /* Боковое меню */
     .sidebar {
       position: fixed;
-      top: 0;
+      top: -10px;
       left: -250px;
       width: 250px;
       height: 100vh;
@@ -82,14 +83,24 @@ input[type="date"] {
       transition: background 0.3s;
     }
 
+    .button-container {
+ display: flex;
+ justify-content: center; 
+ gap: 10px;
+}
+
+.button-container button {
+ flex: 1; /* Это главное! */
+}
+
     .sidebar button:hover {
-      background: #777;
+      background: #202020;
     }
 
     /* Затемнение фона */
     .overlay {
       position: fixed;
-      top: 0;
+      top: -10px;
       left: 0;
       width: 100%;
       height: 100%;
@@ -108,7 +119,7 @@ input[type="date"] {
     /* Основной контент */
     .content {
       flex: 1;
-      padding: 20px;
+      padding: 0px 20px 0px 20px;
       margin-left: 0;
       transition: margin-left 0.3s;
     }
@@ -117,6 +128,7 @@ input[type="date"] {
       margin-left: 250px;
     }
     .logo{
+      padding-bottom: 30px;
     opacity: 20%;
     display: flex;
     justify-content: center; 
@@ -170,7 +182,8 @@ input[type="date"] {
     }
 
     button:hover {
-      background: #cfcfcf;
+      background: #202020;
+
   
     }
 
