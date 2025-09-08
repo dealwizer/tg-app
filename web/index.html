@@ -32,7 +32,7 @@
           <label>Название заказа: <input type="text" name="title" required></label>
           <label>Количество пакетов: <input type="number" name="packages" required></label>
           <label>Цена за пакет: <input type="number" name="price" value="1"></label>
-          <button type="submit">Сохранить</button>
+          <button type="submit" style="width: 100%;">Сохранить</button>
         </form>
         <p id="status"></p>
       </section>
@@ -40,8 +40,8 @@
       <!-- Страница отчётов -->
       <section id="report" class="page">
         <h2>Сформировать отчёт</h2>
-        <label>С: <input type="date" id="startDate"></label>
-        <label>По: <input type="date" id="endDate"></label>
+        <label>С <input type="date" id="startDate"></label>
+        <label>По <input type="date" id="endDate"></label>
         <button onclick="getReport()">Сделать отчёт</button>
         <button onclick="downloadPDF()">Скачать PDF</button>
 
