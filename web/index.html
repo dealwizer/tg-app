@@ -136,67 +136,53 @@
 
     // === Загрузка и отображение списка заказов ===
     async function loadOrders() {
-    const date = document.getElementById("filterDate").value;
-    if (!date) {
-        alert("Выбери дату!");
-        return;
-    }
+        const date = document.getElementById("filterDate").value;
+        if (!date) {
+            alert("Выбери дату!");
+            return;
+        }
 
-    const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("date", date)
-        .order("id", { ascending: true }); // Сортируем по ID
+        const { data, error } = await supabase
+            .from("orders")
+            .select("*")
+            .eq("date", date)
+            .order("id", { ascending: true }); // Сортируем по ID
 
-    if (error) {
-        console.error("Ошибка при загрузке заказов:", error);
-        alert("Ошибка при загрузке данных.");
-        return;
-    }
+        if (error) {
+            console.error("Ошибка при загрузке заказов:", error);
+            alert("Ошибка при загрузке данных.");
+            return;
+        }
 
-    const ordersList = document.getElementById("ordersContent");
-    if (!data || data.length === 0) {
-        ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
-        return;
-    }
+        const ordersList = document.getElementById("ordersContent");
+        if (!data || data.length === 0) {
+            ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
+            return;
+        }
 
-    let html = ""; // Начинаем без <ul>
-data.forEach(order => {
-    html += `
-        <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
-            <div><strong>Название:</strong> ${order.title}</div>
-            <div><strong>Пакетов:</strong> ${order.packages}</div>
-            <div><strong>Цена:</strong> ${order.price}</div>
-            <div class="actions">
-                <button class="edit-btn">Редактировать</button>
-                <button class="delete-btn">Удалить</button>
-            </div>
-        </div>
-        <hr class="separator">`; // Добавляем разделитель
-});
-
-    ordersList.innerHTML = html;
-
-    // Добавляем обработчики событий для кнопок редактирования
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const li = event.target.closest('li');
-            const id = li.dataset.id;
-            const title = li.dataset.title;
-            const packages = li.dataset.packages;
-            const price = li.dataset.price;
-            editOrder(id, title, packages, price);
+        let html = "";
+        data.forEach(order => {
+            html += `
+                <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
+                    <div><strong>Название:</strong> ${order.title}</div>
+                    <div><strong>Пакетов:</strong> ${order.packages}</div>
+                    <div><strong>Цена:</strong> ${order.price}</div>
+                    <div class="actions">
+                        <button class="edit-btn">Редактировать</button>
+                        <button class="delete-btn">Удалить</button>
+                    </div>
+                </div>
+                <hr class="separator">`;
         });
-    });
 
-    // Добавляем обработчики событий для кнопок удаления
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const id = event.target.closest('li').dataset.id;
-            deleteOrder(id);
-        });
-    });
-}
+        // Убираем последний разделитель для красоты
+        if (data.length > 0) {
+            ordersList.innerHTML = html.slice(0, html.lastIndexOf('<hr class="separator">'));
+        } else {
+            ordersList.innerHTML = html;
+        }
+    }
+
     // === Удаление заказа по ID ===
     async function deleteOrder(id) {
         if (!confirm("Вы уверены, что хотите удалить этот заказ?")) {
@@ -221,7 +207,7 @@ data.forEach(order => {
     // === Редактирование заказа ===
     async function editOrder(id, title, packages, price) {
         const newTitle = prompt("Название заказа:", title);
-        if (newTitle === null) return; // Если пользователь нажал Отмена
+        if (newTitle === null) return;
         
         const newPackages = prompt("Количество пакетов:", packages);
         if (newPackages === null) return;
@@ -273,25 +259,46 @@ data.forEach(order => {
         }
 
         let total = 0;
-        let html = '<h3>Суммы по заказам:</h3>'; // Начинаем без <ul>
-data.forEach(order => {
-    const sum = order.packages * order.price;
-    total += sum;
-    html += `
-        <div class="report-item">
-            ${order.date}: ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}
-        </div>
-        <hr class="separator">`;
-});
-html += `<p style="font-size: 20px"><b>Итого: ${total.toFixed(2)} сом</b></p>`;
+        let html = '<h3>Суммы по заказам:</h3>';
+        data.forEach(order => {
+            const sum = order.packages * order.price;
+            total += sum;
+            html += `
+                <div class="report-item">
+                    ${order.date}: ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}
+                </div>
+                <hr class="separator">`;
+        });
+        
+        if (data.length > 0) {
+            html += `<p style="font-size: 20px"><b>Итого: ${total.toFixed(2)} сом</b></p>`;
+        }
 
         document.getElementById('reportResult').innerHTML = html;
     }
 
-    // === Функция для скачивания PDF (заглушка) ===
-    function downloadPDF() {
-        alert('Чтобы скачать отчёт в PDF, используйте функцию печати вашего браузера.');
-    }
+    // === Делегирование событий: устанавливается один раз ===
+    document.addEventListener('DOMContentLoaded', () => {
+        const ordersContent = document.getElementById("ordersContent");
+
+        ordersContent.addEventListener('click', (event) => {
+            if (event.target.classList.contains('edit-btn')) {
+                const orderItem = event.target.closest('.order-item');
+                const id = orderItem.dataset.id;
+                const title = orderItem.dataset.title;
+                const packages = orderItem.dataset.packages;
+                const price = orderItem.dataset.price;
+                editOrder(id, title, packages, price);
+            }
+        });
+
+        ordersContent.addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-btn')) {
+                const id = event.target.closest('.order-item').dataset.id;
+                deleteOrder(id);
+            }
+        });
+    });
 </script>
 
 </body>
