@@ -56,7 +56,13 @@
     </main>
   </div>
 
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
+    // === Подключение к Supabase ===
+    const supabaseUrl = 'https://wagljnxlaehfjliwidqw.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ'; 
+    const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
     // Функция переключения меню
     function toggleMenu() {
       const sidebar = document.querySelector('.sidebar');
@@ -70,12 +76,9 @@
 
     // Функция показа страницы
     function showPage(pageId) {
-      // Скрываем все страницы
       document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
       });
-      
-      // Показываем выбранную страницу
       document.getElementById(pageId).classList.add('active');
     }
 
@@ -89,23 +92,74 @@
       }
     });
 
-    // Обработчик формы (заглушка)
-    document.getElementById('orderForm').addEventListener('submit', function(e) {
+    // === Сохранение заказа ===
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      document.getElementById('status').textContent = 'Заказ сохранен!';
-      setTimeout(() => {
-        document.getElementById('status').textContent = '';
-      }, 2000);
+
+      const form = e.target;
+      const date = form.date.value;
+      const title = form.title.value;
+      const packages = parseInt(form.packages.value, 10);
+      const price = parseFloat(form.price.value);
+
+      const { error } = await supabase
+        .from('orders')
+        .insert([{ date, title, packages, price }]);
+
+      if (error) {
+        document.getElementById('status').textContent = 'Ошибка сохранения!';
+        console.error(error);
+      } else {
+        document.getElementById('status').textContent = 'Заказ сохранен!';
+        form.reset();
+        setTimeout(() => {
+          document.getElementById('status').textContent = '';
+        }, 2000);
+      }
     });
 
-    // Заглушки для функций отчетов
-    function getReport() {
-      document.getElementById('reportResult').innerHTML = '<p>Отчет сгенерирован</p>';
+    // === Получение отчета ===
+    async function getReport() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      let query = supabase.from('orders').select('*');
+
+      if (startDate && endDate) {
+        query = query.gte('date', startDate).lte('date', endDate);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета</p>';
+        console.error(error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период</p>';
+        return;
+      }
+
+      let total = 0;
+      let html = '<ul>';
+      data.forEach(order => {
+        const sum = order.packages * order.price;
+        total += sum;
+        html += `<li>${order.title}: ${order.packages} × ${order.price} = ${sum}</li>`;
+      });
+      html += '</ul>';
+      html += `<p><b>Итого: ${total}</b></p>`;
+
+      document.getElementById('reportResult').innerHTML = html;
     }
 
+    // PDF убрал, только отчёт
     function downloadPDF() {
-      alert('Функция скачивания PDF в разработке');
+      alert('В этой версии отчёт только на странице, без PDF');
     }
   </script>
+
 </body>
 </html>
