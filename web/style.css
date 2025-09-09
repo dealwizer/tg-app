@@ -9,46 +9,23 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: #ffffff;
     }
-/* Модальное окно */
-.modal {
-    display: none; /* Скрыто по умолчанию */
-    position: fixed; /* Поверх всего */
-    z-index: 1; /* Поверх других элементов */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Включить прокрутку, если нужно */
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4); /* Полупрозрачный фон */
+/* Стили для элементов списка заказов */
+.order-item {
+    padding: 10px;
+    margin-bottom: 5px;
 }
 
-/* Контент модального окна */
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% сверху и по центру */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-height: 70vh;
-    overflow-y: auto;
-    position: relative;
-    border-radius: 8px;
+/* Стили для разделителя */
+.separator {
+    border: none;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.15); /* Полупрозрачный цвет */
+    margin: 10px 0;
 }
 
-/* Кнопка закрытия */
-.close-btn {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close-btn:hover,
-.close-btn:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+/* Стили для элементов отчета */
+.report-item {
+    padding: 5px 0;
 }
     .app-container {
       display: flex;

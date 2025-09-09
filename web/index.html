@@ -49,14 +49,10 @@
         <label>По <input type="date" id="endDate"></label>
         <div class="button-container">
         <button onclick="getReport()">Сделать отчёт</button>
-        <button onclick="downloadPDF()">Скачать PDF</button>
         </div>
          <div id="reportResult"></div>
          <div id="reportModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Отчёт по заказам</h2>
-        <div id="modalReportContent"></div>
     </div>
 </div>
       </section>
@@ -140,66 +136,67 @@
 
     // === Загрузка и отображение списка заказов ===
     async function loadOrders() {
-        const date = document.getElementById("filterDate").value;
-        if (!date) {
-            alert("Выбери дату!");
-            return;
-        }
-
-        const { data, error } = await supabase
-            .from("orders")
-            .select("*")
-            .eq("date", date)
-            .order("id", { ascending: true }); // Сортируем по ID
-
-        if (error) {
-            console.error("Ошибка при загрузке заказов:", error);
-            alert("Ошибка при загрузке данных.");
-            return;
-        }
-
-        const ordersList = document.getElementById("ordersContent");
-        if (!data || data.length === 0) {
-            ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
-            return;
-        }
-
-        let html = "<ul>";
-        data.forEach(order => {
-            html += `
-                <li data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
-                    <strong>Название:</strong> ${order.title} | 
-                    <strong>Пакетов:</strong> ${order.packages} | 
-                    <strong>Цена:</strong> ${order.price}
-                    <button class="edit-btn">Редактировать</button>
-                    <button class="delete-btn">Удалить</button>
-                </li>`;
-        });
-        html += "</ul>";
-
-        ordersList.innerHTML = html;
-
-        // Добавляем обработчики событий для кнопок редактирования
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const li = event.target.closest('li');
-                const id = li.dataset.id;
-                const title = li.dataset.title;
-                const packages = li.dataset.packages;
-                const price = li.dataset.price;
-                editOrder(id, title, packages, price);
-            });
-        });
-
-        // Добавляем обработчики событий для кнопок удаления
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const id = event.target.closest('li').dataset.id;
-                deleteOrder(id);
-            });
-        });
+    const date = document.getElementById("filterDate").value;
+    if (!date) {
+        alert("Выбери дату!");
+        return;
     }
 
+    const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("date", date)
+        .order("id", { ascending: true }); // Сортируем по ID
+
+    if (error) {
+        console.error("Ошибка при загрузке заказов:", error);
+        alert("Ошибка при загрузке данных.");
+        return;
+    }
+
+    const ordersList = document.getElementById("ordersContent");
+    if (!data || data.length === 0) {
+        ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
+        return;
+    }
+
+    let html = ""; // Начинаем без <ul>
+data.forEach(order => {
+    html += `
+        <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
+            <div><strong>Название:</strong> ${order.title}</div>
+            <div><strong>Пакетов:</strong> ${order.packages}</div>
+            <div><strong>Цена:</strong> ${order.price}</div>
+            <div class="actions">
+                <button class="edit-btn">Редактировать</button>
+                <button class="delete-btn">Удалить</button>
+            </div>
+        </div>
+        <hr class="separator">`; // Добавляем разделитель
+});
+
+    ordersList.innerHTML = html;
+
+    // Добавляем обработчики событий для кнопок редактирования
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const li = event.target.closest('li');
+            const id = li.dataset.id;
+            const title = li.dataset.title;
+            const packages = li.dataset.packages;
+            const price = li.dataset.price;
+            editOrder(id, title, packages, price);
+        });
+    });
+
+    // Добавляем обработчики событий для кнопок удаления
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const id = event.target.closest('li').dataset.id;
+            deleteOrder(id);
+        });
+    });
+}
     // === Удаление заказа по ID ===
     async function deleteOrder(id) {
         if (!confirm("Вы уверены, что хотите удалить этот заказ?")) {
@@ -276,14 +273,17 @@
         }
 
         let total = 0;
-        let html = '<h3>Суммы по заказам:</h3><ul>';
-        data.forEach(order => {
-            const sum = order.packages * order.price;
-            total += sum;
-            html += `<li>${order.date}: ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}</li>`;
-        });
-        html += '</ul>';
-        html += `<p><b>Итого за период: ${total.toFixed(2)}</b></p>`;
+        let html = '<h3>Суммы по заказам:</h3>'; // Начинаем без <ul>
+data.forEach(order => {
+    const sum = order.packages * order.price;
+    total += sum;
+    html += `
+        <div class="report-item">
+            ${order.date}: ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}
+        </div>
+        <hr class="separator">`;
+});
+html += `<p style="font-size: 20px"><b>Итого: ${total.toFixed(2)} сом</b></p>`;
 
         document.getElementById('reportResult').innerHTML = html;
     }
