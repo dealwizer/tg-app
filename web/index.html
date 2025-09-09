@@ -19,6 +19,7 @@
       <h2>Меню</h2>
       <button onclick="showPage('add'); toggleMenu();">Добавить заказ</button>
       <button onclick="showPage('report'); toggleMenu();">Отчёты</button>
+      <button onclick="showPage('ordersList'); toggleMenu();">Список заказов</button>
     </nav>
 
     <!-- Основной контент -->
@@ -35,7 +36,7 @@
           <label>Дата: <input type="date" name="date" required></label>
           <label>Название заказа: <input type="text" name="title" required></label>
           <label>Количество пакетов: <input type="number" name="packages" required></label>
-          <label>Цена за пакет: <input type="number" name="price" value="1"></label>
+          <label>Цена за пакет: <input type="number" name="price" value="1" step="0.01"></label>
           <button type="submit" style="width: 100%;">Сохранить</button>
         </form>
         <p id="status"></p>
@@ -50,116 +51,248 @@
         <button onclick="getReport()">Сделать отчёт</button>
         <button onclick="downloadPDF()">Скачать PDF</button>
         </div>
-
-        <div id="reportResult"></div>
+         <div id="reportResult"></div>
+         <div id="reportModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Отчёт по заказам</h2>
+        <div id="modalReportContent"></div>
+    </div>
+</div>
       </section>
+
+        <section id="ordersList" class="page">
+        <h2>Список заказов</h2>
+        <label>Выбери дату:</label>
+        <input type="date" id="filterDate">
+        <button onclick="loadOrders()">Показать</button>
+        <div id="ordersContent">Нет данных</div>
+    </section>
+
+       
     </main>
   </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
     // === Подключение к Supabase ===
+    const { createClient } = window.supabase;
     const supabaseUrl = 'https://wagljnxlaehfjliwidqw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ'; 
-    const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Функция переключения меню
+    // === Глобальные функции ===
+
+    // Функция для переключения бокового меню
     function toggleMenu() {
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.querySelector('.overlay');
-      const content = document.querySelector('.content');
-      
-      sidebar.classList.toggle('active');
-      overlay.classList.toggle('active');
-      content.classList.toggle('shifted');
-    }
-
-    // Функция показа страницы
-    function showPage(pageId) {
-      document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-      });
-      document.getElementById(pageId).classList.add('active');
-    }
-
-    // Закрытие меню при нажатии на Escape
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') {
         const sidebar = document.querySelector('.sidebar');
-        if (sidebar.classList.contains('active')) {
-          toggleMenu();
+        const overlay = document.querySelector('.overlay');
+        const content = document.querySelector('.content');
+        
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        content.classList.toggle('shifted');
+    }
+
+    // Функция для показа выбранной страницы
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // Обработчик нажатия клавиши Escape для закрытия меню
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar.classList.contains('active')) {
+                toggleMenu();
+            }
         }
-      }
     });
 
-    // === Сохранение заказа ===
+    // === Сохранение нового заказа ===
     document.getElementById('orderForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+        e.preventDefault();
 
-      const form = e.target;
-      const date = form.date.value;
-      const title = form.title.value;
-      const packages = parseInt(form.packages.value, 10);
-      const price = parseFloat(form.price.value);
+        const form = e.target;
+        const date = form.date.value;
+        const title = form.title.value;
+        const packages = parseInt(form.packages.value, 10);
+        const price = parseFloat(form.price.value);
 
-      const { error } = await supabase
-        .from('orders')
-        .insert([{ date, title, packages, price }]);
+        const { error } = await supabase
+            .from('orders')
+            .insert([{ date, title, packages, price }]);
 
-      if (error) {
-        document.getElementById('status').textContent = 'Ошибка сохранения!';
-        console.error(error);
-      } else {
-        document.getElementById('status').textContent = 'Заказ сохранен!';
-        form.reset();
-        setTimeout(() => {
-          document.getElementById('status').textContent = '';
-        }, 2000);
-      }
+        if (error) {
+            document.getElementById('status').textContent = 'Ошибка сохранения!';
+            console.error(error);
+        } else {
+            document.getElementById('status').textContent = 'Заказ сохранен!';
+            form.reset();
+            setTimeout(() => {
+                document.getElementById('status').textContent = '';
+            }, 2000);
+        }
     });
 
-    // === Получение отчета ===
+    // === Загрузка и отображение списка заказов ===
+    async function loadOrders() {
+        const date = document.getElementById("filterDate").value;
+        if (!date) {
+            alert("Выбери дату!");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("orders")
+            .select("*")
+            .eq("date", date)
+            .order("id", { ascending: true }); // Сортируем по ID
+
+        if (error) {
+            console.error("Ошибка при загрузке заказов:", error);
+            alert("Ошибка при загрузке данных.");
+            return;
+        }
+
+        const ordersList = document.getElementById("ordersContent");
+        if (!data || data.length === 0) {
+            ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
+            return;
+        }
+
+        let html = "<ul>";
+        data.forEach(order => {
+            html += `
+                <li data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
+                    <strong>Название:</strong> ${order.title} | 
+                    <strong>Пакетов:</strong> ${order.packages} | 
+                    <strong>Цена:</strong> ${order.price}
+                    <button class="edit-btn">Редактировать</button>
+                    <button class="delete-btn">Удалить</button>
+                </li>`;
+        });
+        html += "</ul>";
+
+        ordersList.innerHTML = html;
+
+        // Добавляем обработчики событий для кнопок редактирования
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const li = event.target.closest('li');
+                const id = li.dataset.id;
+                const title = li.dataset.title;
+                const packages = li.dataset.packages;
+                const price = li.dataset.price;
+                editOrder(id, title, packages, price);
+            });
+        });
+
+        // Добавляем обработчики событий для кнопок удаления
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const id = event.target.closest('li').dataset.id;
+                deleteOrder(id);
+            });
+        });
+    }
+
+    // === Удаление заказа по ID ===
+    async function deleteOrder(id) {
+        if (!confirm("Вы уверены, что хотите удалить этот заказ?")) {
+            return;
+        }
+
+        const { error } = await supabase
+            .from("orders")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            console.error("Ошибка при удалении заказа:", error);
+            alert("Не удалось удалить заказ.");
+            return;
+        }
+        
+        alert("Заказ успешно удален!");
+        loadOrders(); // Обновляем список заказов после удаления
+    }
+
+    // === Редактирование заказа ===
+    async function editOrder(id, title, packages, price) {
+        const newTitle = prompt("Название заказа:", title);
+        if (newTitle === null) return; // Если пользователь нажал Отмена
+        
+        const newPackages = prompt("Количество пакетов:", packages);
+        if (newPackages === null) return;
+        
+        const newPrice = prompt("Цена за пакет:", price);
+        if (newPrice === null) return;
+
+        const { error } = await supabase
+            .from("orders")
+            .update({ 
+                title: newTitle, 
+                packages: parseInt(newPackages, 10), 
+                price: parseFloat(newPrice) 
+            })
+            .eq("id", id);
+
+        if (error) {
+            console.error("Ошибка при обновлении заказа:", error);
+            alert("Не удалось обновить заказ.");
+            return;
+        }
+        
+        alert("Заказ успешно обновлен!");
+        loadOrders(); // Обновляем список после редактирования
+    }
+
+    // === Получение данных для отчёта и отображение на странице ===
     async function getReport() {
-      const startDate = document.getElementById('startDate').value;
-      const endDate = document.getElementById('endDate').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
 
-      let query = supabase.from('orders').select('*');
+        let query = supabase.from('orders').select('*');
 
-      if (startDate && endDate) {
-        query = query.gte('date', startDate).lte('date', endDate);
-      }
+        if (startDate && endDate) {
+            query = query.gte('date', startDate).lte('date', endDate);
+        }
 
-      const { data, error } = await query;
+        const { data, error } = await query;
 
-      if (error) {
-        document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета</p>';
-        console.error(error);
-        return;
-      }
+        if (error) {
+            document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета.</p>';
+            console.error("Ошибка при получении отчёта:", error);
+            return;
+        }
 
-      if (!data || data.length === 0) {
-        document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период</p>';
-        return;
-      }
+        if (!data || data.length === 0) {
+            document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период.</p>';
+            return;
+        }
 
-      let total = 0;
-      let html = '<ul>';
-      data.forEach(order => {
-        const sum = order.packages * order.price;
-        total += sum;
-        html += `<li>${order.title}: ${order.packages} × ${order.price} = ${sum}</li>`;
-      });
-      html += '</ul>';
-      html += `<p><b>Итого: ${total}</b></p>`;
+        let total = 0;
+        let html = '<h3>Суммы по заказам:</h3><ul>';
+        data.forEach(order => {
+            const sum = order.packages * order.price;
+            total += sum;
+            html += `<li>${order.date}: ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}</li>`;
+        });
+        html += '</ul>';
+        html += `<p><b>Итого за период: ${total.toFixed(2)}</b></p>`;
 
-      document.getElementById('reportResult').innerHTML = html;
+        document.getElementById('reportResult').innerHTML = html;
     }
 
-    // PDF убрал, только отчёт
+    // === Функция для скачивания PDF (заглушка) ===
     function downloadPDF() {
-      alert('В этой версии отчёт только на странице, без PDF');
+        alert('Чтобы скачать отчёт в PDF, используйте функцию печати вашего браузера.');
     }
-  </script>
+</script>
 
 </body>
 </html>
