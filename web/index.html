@@ -263,11 +263,14 @@
         data.forEach(order => {
             const sum = order.packages * order.price;
             total += sum;
-            html += `
-                <div class="report-item">
-                    ${order.date}: ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}
-                </div>
-                <hr class="separator">`;
+            const dateParts = order.date.split('-');
+const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+
+html += `
+    <div class="report-item">
+        ${formattedDate} ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}
+    </div>
+    <hr class="separator">`;
         });
         
         if (data.length > 0) {
