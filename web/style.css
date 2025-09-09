@@ -124,7 +124,8 @@ input[type="date"] {
       margin-left: 250px;
     }
     .logo{
-      padding-bottom: 30px;
+      padding-bottom: 20px;
+      margin-top: -10px;
     opacity: 10%;
     display: flex;
     justify-content: center; 
