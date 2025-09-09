@@ -5,22 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Учет заказов</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- Бургер-кнопка -->
-    <button class="burger-btn" onclick="toggleMenu()">☰</button>
-
-    <!-- Затемнение фона -->
-    <div class="overlay" onclick="toggleMenu()"></div>
-
-    <!-- Боковое меню -->
-    <nav class="sidebar">
-      <h2>Меню</h2>
-      <button onclick="showPage('add'); toggleMenu();">Добавить заказ</button>
-      <button onclick="showPage('report'); toggleMenu();">Отчёты</button>
-      <button onclick="showPage('ordersList'); toggleMenu();">Список заказов</button>
-    </nav>
+   <div class="tab-bar">
+    <button onclick="showPage('order')" class="tab-item" data-page-id="order">
+            <svg  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.5" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="black" stroke-width="1.5"/>
+            <path d="M15 12H12M12 12H9M12 12V9M12 12V15" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+        </button>
+    <button onclick="showPage('orders-list')" class="tab-item" data-page-id="orders-list">
+            <svg  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.287 3.15196L14.36 4.07896L5.83902 12.599C5.26202 13.177 4.97302 13.466 4.72502 13.784C4.43241 14.1594 4.18128 14.5655 3.97602 14.995C3.80302 15.359 3.67402 15.747 3.41602 16.521L2.32202 19.802L2.05402 20.604C1.99133 20.7909 1.98203 20.9916 2.02716 21.1836C2.07229 21.3755 2.17007 21.5511 2.30949 21.6905C2.44891 21.8299 2.62446 21.9277 2.81641 21.9728C3.00835 22.018 3.20907 22.0087 3.39602 21.946L4.19802 21.678L7.47902 20.584C8.25402 20.326 8.64102 20.197 9.00502 20.024C9.43635 19.8186 9.84002 19.569 10.216 19.275C10.534 19.027 10.823 18.738 11.4 18.161L19.921 9.63997L20.848 8.71297C21.5855 7.97553 21.9997 6.97535 21.9997 5.93246C21.9997 4.88958 21.5855 3.8894 20.848 3.15196C20.1106 2.41453 19.1104 2.00024 18.0675 2.00024C17.0246 2.00024 16.0245 2.41453 15.287 3.15196Z" stroke="black" stroke-width="1.5"/>
+            <path opacity="0.5" d="M14.36 4.07788C14.36 4.07788 14.476 6.04788 16.214 7.78588C17.952 9.52388 19.921 9.63888 19.921 9.63888M4.19802 21.6779L2.32202 19.8019" stroke="black" stroke-width="1.5"/>
+            </svg>
+        </button>
+    <button onclick="showPage('report')" class="tab-item" data-page-id="report">
+            <svg  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.5" d="M16 4.00195C18.175 4.01395 19.353 4.11095 20.121 4.87895C21 5.75795 21 7.17195 21 9.99995V16C21 18.829 21 20.243 20.121 21.122C19.243 22 17.828 22 15 22H9C6.172 22 4.757 22 3.879 21.122C3 20.242 3 18.829 3 16V9.99995C3 7.17195 3 5.75795 3.879 4.87895C4.647 4.11095 5.825 4.01395 8 4.00195" stroke="black" stroke-width="1.5"/>
+            <path d="M10.5 14H17M7 14H7.5M7 10.5H7.5M7 17.5H7.5M10.5 10.5H17M10.5 17.5H17" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8 3.5C8 3.10218 8.15804 2.72064 8.43934 2.43934C8.72064 2.15804 9.10218 2 9.5 2H14.5C14.8978 2 15.2794 2.15804 15.5607 2.43934C15.842 2.72064 16 3.10218 16 3.5V4.5C16 4.89782 15.842 5.27936 15.5607 5.56066C15.2794 5.84196 14.8978 6 14.5 6H9.5C9.10218 6 8.72064 5.84196 8.43934 5.56066C8.15804 5.27936 8 4.89782 8 4.5V3.5Z" stroke="black" stroke-width="1.5"/>
+            </svg>
+        </button>
+</div>
 
     <!-- Основной контент -->
     <main class="content">
@@ -30,7 +39,7 @@
 </svg>
 </div>
       <!-- Страница добавления -->
-      <section id="add" class="page active">
+      <section id="order" class="page active">
         <h2>Добавить заказ</h2>
         <form id="orderForm">
           <label>Дата: <input type="date" name="date" required></label>
@@ -57,7 +66,7 @@
 </div>
       </section>
 
-        <section id="ordersList" class="page">
+        <section id="orders-list" class="page">
         <h2>Список заказов</h2>
         <label>Выбери дату:</label>
         <input type="date" id="filterDate">
@@ -92,21 +101,28 @@
 
     // Функция для показа выбранной страницы
     function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
-        document.getElementById(pageId).classList.add('active');
+    // Снимаем класс 'active' со всех кнопок в таб-баре
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Находим кнопку, соответствующую pageId, и добавляем ей класс 'active'
+    const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active');
     }
 
-    // Обработчик нажатия клавиши Escape для закрытия меню
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            const sidebar = document.querySelector('.sidebar');
-            if (sidebar.classList.contains('active')) {
-                toggleMenu();
-            }
-        }
+    // Скрываем все страницы
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
     });
+
+    // Показываем нужную страницу, добавляя ей класс 'active'
+    const activePage = document.getElementById(pageId);
+    if (activePage) {
+        activePage.classList.add('active');
+    }
+}
 
     // === Сохранение нового заказа ===
     document.getElementById('orderForm').addEventListener('submit', async function(e) {
@@ -270,12 +286,12 @@
 
         html += `
     <div class="report-item">
-        <span style="color: #666;">${formattedDate} </span>${order.title}<span style="color: #666;"> — </span>${order.packages}<span style="color: #666;"> × </span>${parseFloat(order.price)}<span style="color: #666;"> = </span>${parseFloat(sum)}
+        <span style="color: #999999;">${formattedDate} </span>${order.title}<span style="color: #999999;"> — </span>${order.packages}<span style="color: #999999;"> × </span>${parseFloat(order.price)}<span style="color: #999999;"> = </span>${parseFloat(sum)}
     </div>
     <hr class="separator">`;
     });
     
-    html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total)} сом</b></p>`;
+    html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total)} <span style="color: #999999;"> сом </span> </b></p>`;
 
     document.getElementById('reportResult').innerHTML = html;
 }

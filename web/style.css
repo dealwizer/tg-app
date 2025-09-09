@@ -7,14 +7,64 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: #ffffff;
+      background-color: #f0f0f0;
     }
 /* Стили для элементов списка заказов */
 .order-item {
     padding: 10px;
     margin-bottom: 5px;
 }
+.tab-bar {
+    position: fixed;
+    bottom: 20px; /* Отступ от нижнего края */
+    left: 50%; /* Смещаем на 50% влево */
+    transform: translateX(-50%); /* Центрируем */
+    
+    width: auto; /* Ширина по контенту */
+    min-width: 200px; /* Минимальная ширина, чтобы не слипались */
+    max-width: 90%; /* Максимальная ширина на маленьких экранах */
+    border: #f0f0f0 2px solid;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 50px; /* Закругляем углы (большое значение для эффекта "пилюли") */
+    padding: 10px 15px; /* Увеличиваем внутренние отступы */
+    z-index: 1000;
+}
 
+
+.tab-item {
+    display: flex;
+    flex-direction: column; /* Иконка и текст были бы в колонке */
+    align-items: center;
+    justify-content: center; /* Центрируем иконку */
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.2s; /* Добавляем transform для анимации */
+    padding: 2px 15px 12px; /* Отступы для каждой кнопки */
+}
+.tab-item button{
+    background: none;
+  
+}
+.tab-item svg {
+    width: 30px; /* Увеличьте ширину */
+    height: 30px; /* Увеличьте высоту */
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+.tab-item:hover svg,
+.tab-item.active svg {
+
+    opacity: 1; /* Полная прозрачность (100%) */
+}
+
+.tab-item i {
+  opacity: 100%;
+    margin-bottom: 0; /* Убираем отступ, так как текста нет */
+}
 /* Стили для разделителя */
 .separator {
     border: none;
@@ -32,37 +82,7 @@
       min-height: 100vh;
     }
 
-    /* Стили для бургер-кнопки */
-    .burger-btn {
-      position: fixed;
-      right: 30px;
-      top: 43px;
-      z-index: 1001;
-      background: #ffffff;
-      color: rgb(0, 0, 0);
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 18px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .burger-btn:hover{
-      background-color: white;
-    }
-    /* Боковое меню */
-    .sidebar {
-      position: fixed;
-      top: -10px;
-      left: -250px;
-      width: 250px;
-      height: 100vh;
-      background: #ffffff;
-      color: rgb(0, 0, 0);
-      padding: 60px 20px 20px;
-      transition: left 0.3s ease;
-      z-index: 1000;
-    }
+
     input, textarea, select {
  font-size: 16px;
 }
@@ -82,28 +102,7 @@ input[type="date"] {
     border: 1px solid #ccc; /* Optional: to match other inputs */
     padding: 8px 10px; /* Optional: to match other inputs */
 }
-    .sidebar.active {
-      left: 0;
-    }
 
-    .sidebar h2 {
-      color: rgb(0, 0, 0);
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .sidebar button {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      background: #000000;
-      color: rgb(255, 255, 255);
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
 
     .button-container {
  display: flex;
@@ -111,32 +110,6 @@ input[type="date"] {
  gap: 10px;
 }
 
-.button-container button {
- flex: 1; /* Это главное! */
-}
-
-    .sidebar button:hover {
-      background: #202020;
-    }
-
-    /* Затемнение фона */
-    .overlay {
-      position: fixed;
-      top: -10px;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s;
-      z-index: 999;
-    }
-
-    .overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
 
     /* Основной контент */
     .content {
@@ -144,6 +117,7 @@ input[type="date"] {
       padding: 0px 20px 0px 20px;
       margin-left: 0;
       transition: margin-left 0.3s;
+      padding-bottom: 100px;
     }
 
     .content.shifted {
@@ -161,8 +135,7 @@ input[type="date"] {
       display: none;
       padding: 20px;
       background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
     }
 
     .page.active {
@@ -188,7 +161,7 @@ input[type="date"] {
       padding: 10px;
       margin: 5px 0;
       border: 1px solid #ddd;
-      border-radius: 5px;
+      border-radius: 10px;
     }
 
     button[type="submit"],
@@ -198,28 +171,23 @@ input[type="date"] {
       background: #000000;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 15px;
       cursor: pointer;
       margin: 5px 0;
     }
 
-    button:hover {
-      background: #202020;
-
-  
-    }
 
     #status {
       margin: 10px 0;
       padding: 10px;
-      border-radius: 5px;
+      border-radius: 10px;
     }
 
     #reportResult {
       margin: 20px 0;
       padding: 20px;
       background: #f8f9fa;
-      border-radius: 5px;
+      border-radius: 10px;
       border: 1px solid #dee2e6;
     }
 
