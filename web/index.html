@@ -166,7 +166,7 @@
                 <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
                     <div><strong>Название:</strong> ${order.title}</div>
                     <div><strong>Пакетов:</strong> ${order.packages}</div>
-                    <div><strong>Цена:</strong> ${order.price}</div>
+                    <div><strong>Цена:</strong>${parseFloat(order.price)}</div>
                     <div class="actions">
                         <button class="edit-btn">Редактировать</button>
                         <button class="delete-btn">Удалить</button>
@@ -236,49 +236,49 @@
 
     // === Получение данных для отчёта и отображение на странице ===
     async function getReport() {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
 
-        let query = supabase.from('orders').select('*');
+    let query = supabase.from('orders').select('*');
 
-        if (startDate && endDate) {
-            query = query.gte('date', startDate).lte('date', endDate);
-        }
+    if (startDate && endDate) {
+        query = query.gte('date', startDate).lte('date', endDate);
+    }
 
-        const { data, error } = await query;
+    const { data, error } = await query;
 
-        if (error) {
-            document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета.</p>';
-            console.error("Ошибка при получении отчёта:", error);
-            return;
-        }
+    if (error) {
+        document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета.</p>';
+        console.error("Ошибка при получении отчёта:", error);
+        return;
+    }
 
-        if (!data || data.length === 0) {
-            document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период.</p>';
-            return;
-        }
+    if (!data || data.length === 0) {
+        document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период.</p>';
+        return;
+    }
 
-        let total = 0;
-        let html = '<h3>Суммы по заказам:</h3>';
-        data.forEach(order => {
-            const sum = order.packages * order.price;
-            total += sum;
-            const dateParts = order.date.split('-');
-const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+    let total = 0;
+    let html = '<h3>Суммы по заказам:</h3>';
+    data.forEach(order => {
+        const sum = order.packages * order.price;
+        total += sum;
+        
+        // Преобразуем дату из формата YYYY-MM-DD в DD.MM
+        const dateParts = order.date.split('-');
+        const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
 
-html += `
+        html += `
     <div class="report-item">
-        ${formattedDate} ${order.title} — ${order.packages} × ${order.price} = ${sum.toFixed(2)}
+        <span style="color: #666;">${formattedDate} </span>${order.title}<span style="color: #666;"> — </span>${order.packages}<span style="color: #666;"> × </span>${parseFloat(order.price)}<span style="color: #666;"> = </span>${parseFloat(sum)}
     </div>
     <hr class="separator">`;
-        });
-        
-        if (data.length > 0) {
-            html += `<p style="font-size: 20px"><b>Итого: ${total.toFixed(2)} сом</b></p>`;
-        }
+    });
+    
+    html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total)} сом</b></p>`;
 
-        document.getElementById('reportResult').innerHTML = html;
-    }
+    document.getElementById('reportResult').innerHTML = html;
+}
 
     // === Делегирование событий: устанавливается один раз ===
     document.addEventListener('DOMContentLoaded', () => {
