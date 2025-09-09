@@ -73,9 +73,13 @@ input {
 }
 
 input[type="date"] {
- /* Дополнительные стили, чтобы поле выглядело так же, как остальные */
- font-size: 16px;
- height: 40px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc; /* Optional: to match other inputs */
+    padding: 8px 10px; /* Optional: to match other inputs */
 }
     .sidebar.active {
       left: 0;
