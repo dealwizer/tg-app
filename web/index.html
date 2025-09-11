@@ -153,7 +153,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 
         const { error } = await supabase
             .from('orders')
-            .insert([{ user_id: userTelegramId, date, title, packages, price }]);
+            .insert([{ user_id: BigInt(userTelegramId), date, title, packages, price }]);
 
         if (error) {
             document.getElementById('status').textContent = 'Ошибка сохранения!';
@@ -179,7 +179,7 @@ if (window.Telegram && window.Telegram.WebApp) {
             .from("orders")
             .select("*")
             .eq("date", date)
-            .eq("user_id", userTelegramId);
+            .eq('user_id', BigInt(userTelegramId));
 
         if (error) {
             console.error("Ошибка при загрузке заказов:", error);
@@ -226,7 +226,7 @@ if (window.Telegram && window.Telegram.WebApp) {
             .from("orders")
             .delete()
             .eq("id", id)
-            .eq("user_id", userTelegramId);
+            .eq('user_id', BigInt(userTelegramId));
 
         if (error) {
             console.error("Ошибка при удалении заказа:", error);
@@ -257,7 +257,7 @@ if (window.Telegram && window.Telegram.WebApp) {
                 price: parseFloat(newPrice) 
             })
             .eq("id", id)
-            .eq("user_id", userTelegramId);
+            .eq('user_id', BigInt(userTelegramId));
 
         if (error) {
             console.error("Ошибка при обновлении заказа:", error);
