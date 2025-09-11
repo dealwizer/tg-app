@@ -80,6 +80,23 @@
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
+    let userTelegramId = null;
+let userIsAuthenticated = false;
+
+// Проверка: запущено ли приложение в Telegram Mini App
+if (window.Telegram && window.Telegram.WebApp) {
+    const initData = Telegram.WebApp.initDataUnsafe;
+    if (initData && initData.user) {
+        userTelegramId = initData.user.id;
+        userIsAuthenticated = true;
+    }
+} else {
+    // ЗАГЛУШКА для локального тестирования
+    // Приложение работает в тестовом режиме с фиксированным ID.
+    userTelegramId = 123456789;
+    userIsAuthenticated = true;
+    console.warn('Приложение работает в тестовом режиме!');
+}
     // === Подключение к Supabase ===
     const { createClient } = window.supabase;
     const supabaseUrl = 'https://wagljnxlaehfjliwidqw.supabase.co';
@@ -136,7 +153,7 @@
 
         const { error } = await supabase
             .from('orders')
-            .insert([{ date, title, packages, price }]);
+            .insert([{ user_id: userTelegramId, date, title, packages, price }]);
 
         if (error) {
             document.getElementById('status').textContent = 'Ошибка сохранения!';
@@ -162,7 +179,7 @@
             .from("orders")
             .select("*")
             .eq("date", date)
-            .order("id", { ascending: true }); // Сортируем по ID
+            .eq("user_id", userTelegramId);
 
         if (error) {
             console.error("Ошибка при загрузке заказов:", error);
@@ -208,7 +225,8 @@
         const { error } = await supabase
             .from("orders")
             .delete()
-            .eq("id", id);
+            .eq("id", id)
+            .eq("user_id", userTelegramId);
 
         if (error) {
             console.error("Ошибка при удалении заказа:", error);
@@ -238,7 +256,8 @@
                 packages: parseInt(newPackages, 10), 
                 price: parseFloat(newPrice) 
             })
-            .eq("id", id);
+            .eq("id", id)
+            .eq("user_id", userTelegramId);
 
         if (error) {
             console.error("Ошибка при обновлении заказа:", error);
@@ -255,7 +274,7 @@
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
 
-    let query = supabase.from('orders').select('*');
+    let query = supabase.from('orders').select('*').eq('user_id', userTelegramId);
 
     if (startDate && endDate) {
         query = query.gte('date', startDate).lte('date', endDate);
