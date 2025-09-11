@@ -81,111 +81,70 @@
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-   // Глобальный объект для хранения состояния аутентификации.
-const auth = {
-    userId: null,
-    isAuthenticated: false,
-    token: null
-};
-
-// --- НАЧАЛО ПРОЦЕССА АУТЕНТИФИКАЦИИ ---
-// Эта функция будет обрабатывать аутентификацию с помощью нашего бэкенда.
-// A global object to hold our authentication state.
-const auth = {
-    userId: null,
-    isAuthenticated: false,
-    token: null
-};
-
-// --- AUTHENTICATION FLOW ---
-async function authenticateUser() {
-    try {
-        if (window.Telegram && window.Telegram.WebApp) {
-            const initData = Telegram.WebApp.initData;
-            
-            // We send initData to a new backend function for verification.
-            // Replace 'YOUR_SUPABASE_FUNCTION_URL' with the actual URL.
-            const response = await fetch('YOUR_SUPABASE_FUNCTION_URL/auth/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ initData })
-            });
-
-            const data = await response.json();
-
-            if (data.token) {
-                auth.token = data.token;
-                const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
-                auth.userId = decodedToken.tg_id;
-                auth.isAuthenticated = true;
-
-                // Set the session in Supabase with the received JWT token
-                await supabase.auth.setSession({
-                    access_token: auth.token,
-                    refresh_token: auth.token // Using the same token for simplicity
-                });
-                
-                console.log("Authentication successful. User ID:", auth.userId);
-            } else {
-                throw new Error('Authentication failed.');
-            }
-        } else {
-            // Fallback for local testing (not in Telegram).
-            auth.userId = 123456789;
-            auth.isAuthenticated = true;
-            console.warn('App is not in Telegram. Running in test mode!');
-        }
-    } catch (error) {
-        console.error('Authentication error:', error);
-        // Fallback to the placeholder ID if any error occurs.
-        auth.userId = 123456789;
-        auth.isAuthenticated = true;
-        console.warn('Authentication failed. Running in test mode!');
-    }
-}
-
-// Call this function when the app first loads.
-authenticateUser();
-
-// --- КОНЕЦ ПРОЦЕССА АУТЕНТИФИКАЦИИ ---
-    // === Подключение к Supabase ===
+    // === 1. Подключение к Supabase (ПЕРВОЕ!) ===
+    // Клиент Supabase должен быть создан ПЕРЕД тем, как вы его используете.
     const { createClient } = window.supabase;
     const supabaseUrl = 'https://wagljnxlaehfjliwidqw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ'; 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // === Глобальные функции ===
+    // === 2. Глобальный объект для аутентификации ===
+    const auth = {
+        userId: null,
+        isAuthenticated: false,
+        token: null
+    };
 
+    // === 3. Процесс аутентификации ===
+    async function authenticateUser() {
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const initData = Telegram.WebApp.initData;
+                
+                // Замените YOUR_SUPABASE_FUNCTION_URL на реальный URL вашей функции
+                const response = await fetch('YOUR_SUPABASE_FUNCTION_URL/auth/signin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData })
+                });
 
+                const data = await response.json();
 
-    // Функция для показа выбранной страницы
-    function showPage(pageId) {
-    // Снимаем класс 'active' со всех кнопок в таб-баре
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.classList.remove('active');
-    });
+                if (data.token) {
+                    auth.token = data.token;
+                    const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
+                    auth.userId = decodedToken.tg_id;
+                    auth.isAuthenticated = true;
 
-    // Находим кнопку, соответствующую pageId, и добавляем ей класс 'active'
-    const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
-    if (activeTab) {
-        activeTab.classList.add('active');
+                    // Установка сессии в Supabase - ключевой шаг
+                    await supabase.auth.setSession({
+                        access_token: auth.token,
+                        refresh_token: auth.token
+                    });
+                    
+                    console.log("Аутентификация успешна. ID пользователя:", auth.userId);
+                } else {
+                    throw new Error('Аутентификация не удалась.');
+                }
+            } else {
+                auth.userId = 123456789;
+                auth.isAuthenticated = true;
+                console.warn('Приложение не в Telegram. Работает в тестовом режиме!');
+            }
+        } catch (error) {
+            console.error('Ошибка аутентификации:', error);
+            auth.userId = 123456789;
+            auth.isAuthenticated = true;
+            console.warn('Аутентификация не удалась. Работает в тестовом режиме!');
+        }
     }
 
-    // Скрываем все страницы
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
+    // Вызываем функцию аутентификации при загрузке
+    authenticateUser();
 
-    // Показываем нужную страницу, добавляя ей класс 'active'
-    const activePage = document.getElementById(pageId);
-    if (activePage) {
-        activePage.classList.add('active');
-    }
-}
+    // === 4. Функции для работы с данными ===
 
-// === Сохранение нового заказа ===
+    // Сохранение нового заказа
     document.getElementById('orderForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -195,7 +154,7 @@ authenticateUser();
         const packages = parseInt(form.packages.value, 10);
         const price = parseFloat(form.price.value);
 
-        // Corrected line: removed the duplicate declaration
+        // Благодаря RLS и setSession, user_id не нужен в insert!
         const { error } = await supabase
             .from('orders')
             .insert([{ date, title, packages, price }]);
@@ -212,7 +171,7 @@ authenticateUser();
         }
     });
 
-    // === Загрузка и отображение списка заказов ===
+    // Загрузка и отображение списка заказов
     async function loadOrders() {
         const date = document.getElementById("filterDate").value;
         if (!date) {
@@ -220,11 +179,11 @@ authenticateUser();
             return;
         }
 
+        // RLS сам отфильтрует заказы по user_id
         const { data, error } = await supabase
             .from("orders")
             .select("*")
-            .eq("date", date)
-            .eq("user_id", auth.userId);
+            .eq("date", date);
 
         if (error) {
             console.error("Ошибка при загрузке заказов:", error);
@@ -252,8 +211,6 @@ authenticateUser();
                 </div>
                 <hr class="separator">`;
         });
-
-        // Убираем последний разделитель для красоты
         if (data.length > 0) {
             ordersList.innerHTML = html.slice(0, html.lastIndexOf('<hr class="separator">'));
         } else {
@@ -261,17 +218,17 @@ authenticateUser();
         }
     }
 
-    // === Удаление заказа по ID ===
+    // Удаление заказа по ID
     async function deleteOrder(id) {
         if (!confirm("Вы уверены, что хотите удалить этот заказ?")) {
             return;
         }
 
+        // RLS сам проверит, что пользователь владеет заказом
         const { error } = await supabase
             .from("orders")
             .delete()
-            .eq("id", id)
-            .eq("user_id", auth.userId);
+            .eq("id", id);
 
         if (error) {
             console.error("Ошибка при удалении заказа:", error);
@@ -280,10 +237,10 @@ authenticateUser();
         }
         
         alert("Заказ успешно удален!");
-        loadOrders(); // Обновляем список заказов после удаления
+        loadOrders();
     }
 
-    // === Редактирование заказа ===
+    // Редактирование заказа
     async function editOrder(id, title, packages, price) {
         const newTitle = prompt("Название заказа:", title);
         if (newTitle === null) return;
@@ -294,6 +251,7 @@ authenticateUser();
         const newPrice = prompt("Цена за пакет:", price);
         if (newPrice === null) return;
 
+        // RLS сам проверит, что пользователь владеет заказом
         const { error } = await supabase
             .from("orders")
             .update({ 
@@ -301,8 +259,7 @@ authenticateUser();
                 packages: parseInt(newPackages, 10), 
                 price: parseFloat(newPrice) 
             })
-            .eq("id", id)
-            .eq("user_id", auth.userId);
+            .eq("id", id);
 
         if (error) {
             console.error("Ошибка при обновлении заказа:", error);
@@ -311,56 +268,55 @@ authenticateUser();
         }
         
         alert("Заказ успешно обновлен!");
-        loadOrders(); // Обновляем список после редактирования
+        loadOrders();
     }
 
-    // === Получение данных для отчёта и отображение на странице ===
+    // Получение данных для отчёта и отображение на странице
     async function getReport() {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
 
-    let query = supabase.from('orders').select('*').eq('user_id', auth.userId);
+        // RLS сам отфильтрует данные по пользователю
+        let query = supabase.from('orders').select('*');
 
-    if (startDate && endDate) {
-        query = query.gte('date', startDate).lte('date', endDate);
-    }
+        if (startDate && endDate) {
+            query = query.gte('date', startDate).lte('date', endDate);
+        }
 
-    const { data, error } = await query;
+        const { data, error } = await query;
 
-    if (error) {
-        document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета.</p>';
-        console.error("Ошибка при получении отчёта:", error);
-        return;
-    }
+        if (error) {
+            document.getElementById('reportResult').innerHTML = '<p>Ошибка при получении отчета.</p>';
+            console.error("Ошибка при получении отчёта:", error);
+            return;
+        }
 
-    if (!data || data.length === 0) {
-        document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период.</p>';
-        return;
-    }
+        if (!data || data.length === 0) {
+            document.getElementById('reportResult').innerHTML = '<p>Нет данных за выбранный период.</p>';
+            return;
+        }
 
-    let total = 0;
-    let html = '<h3>Суммы по заказам:</h3>';
-    data.forEach(order => {
-        const sum = order.packages * order.price;
-        total += sum;
+        let total = 0;
+        let html = '<h3>Суммы по заказам:</h3>';
+        data.forEach(order => {
+            const sum = order.packages * order.price;
+            total += sum;
+            const dateParts = order.date.split('-');
+            const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+
+            html += `
+            <div class="report-item">
+                <span style="color: #999999;">${formattedDate} </span>${order.title}<span style="color: #999999;"> — </span>${order.packages}<span style="color: #999999;"> × </span>${parseFloat(order.price)}<span style="color: #999999;"> = </span>${parseFloat(sum)}
+            </div>
+            <hr class="separator">`;
+        });
         
-        // Преобразуем дату из формата YYYY-MM-DD в DD.MM
-        const dateParts = order.date.split('-');
-        const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+        html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total)} <span style="color: #999999;"> сом </span> </b></p>`;
 
-        html += `
-    <div class="report-item">
-        <span style="color: #999999;">${formattedDate} </span>${order.title}<span style="color: #999999;"> — </span>${order.packages}<span style="color: #999999;"> × </span>${parseFloat(order.price)}<span style="color: #999999;"> = </span>${parseFloat(sum)}
-    </div>
-    <hr class="separator">`;
-    });
-    
-    html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total)} <span style="color: #999999;"> сом </span> </b></p>`;
+        document.getElementById('reportResult').innerHTML = html;
+    }
 
-    document.getElementById('reportResult').innerHTML = html;
-}
-
-    // === Делегирование событий: устанавливается один раз ===
+    // Делегирование событий: устанавливается один раз
     document.addEventListener('DOMContentLoaded', () => {
         const ordersContent = document.getElementById("ordersContent");
 
@@ -382,6 +338,27 @@ authenticateUser();
             }
         });
     });
+
+    // Функция для показа выбранной страницы
+    function showPage(pageId) {
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+
+        const activePage = document.getElementById(pageId);
+        if (activePage) {
+            activePage.classList.add('active');
+        }
+    }
 </script>
 
 </body>
