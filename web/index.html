@@ -105,16 +105,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 
     // === Глобальные функции ===
 
-    // Функция для переключения бокового меню
-    function toggleMenu() {
-        const sidebar = document.querySelector('.sidebar');
-        const overlay = document.querySelector('.overlay');
-        const content = document.querySelector('.content');
-        
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        content.classList.toggle('shifted');
-    }
+
 
     // Функция для показа выбранной страницы
     function showPage(pageId) {
@@ -153,7 +144,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 
         const { error } = await supabase
             .from('orders')
-            .insert([{ user_id: BigInt(userTelegramId), date, title, packages, price }]);
+            .insert([{ user_id: userTelegramId.toString(), date, title, packages, price }]);
 
         if (error) {
             document.getElementById('status').textContent = 'Ошибка сохранения!';
@@ -179,7 +170,7 @@ if (window.Telegram && window.Telegram.WebApp) {
             .from("orders")
             .select("*")
             .eq("date", date)
-            .eq('user_id', BigInt(userTelegramId));
+            .eq("user_id", userTelegramId.toString());
 
         if (error) {
             console.error("Ошибка при загрузке заказов:", error);
@@ -226,7 +217,7 @@ if (window.Telegram && window.Telegram.WebApp) {
             .from("orders")
             .delete()
             .eq("id", id)
-            .eq('user_id', BigInt(userTelegramId));
+            .eq("user_id", userTelegramId.toString());
 
         if (error) {
             console.error("Ошибка при удалении заказа:", error);
@@ -257,7 +248,7 @@ if (window.Telegram && window.Telegram.WebApp) {
                 price: parseFloat(newPrice) 
             })
             .eq("id", id)
-            .eq('user_id', BigInt(userTelegramId));
+            .eq("user_id", userTelegramId.toString());
 
         if (error) {
             console.error("Ошибка при обновлении заказа:", error);
