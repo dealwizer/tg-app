@@ -81,61 +81,54 @@
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-    // === 1. Подключение к Supabase (ПЕРВОЕ!) ===
-    // Клиент Supabase должен быть создан ПЕРЕД тем, как вы его используете.
     const { createClient } = window.supabase;
     const supabaseUrl = 'https://wagljnxlaehfjliwidqw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ'; 
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // === 2. Глобальный объект для аутентификации ===
     const auth = {
         userId: null,
         isAuthenticated: false,
         token: null
     };
 
-    // === 3. Процесс аутентификации ===
-async function authenticateUser() {
-        // Добавляем индикатор загрузки для пользователя
+    // Corrected authentication function
+    async function authenticateUser() {
         document.getElementById('status').textContent = 'Идет аутентификация...';
 
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 const initData = Telegram.WebApp.initData;
-                
-                // Замените YOUR_SUPABASE_FUNCTION_URL на реальный URL вашей функции
-                const response = await fetch('https://wagljnxlaehfjliwidqw.supabase.co/functions/v1/auth-handler', {
+
+                const { data, error } = await supabase.functions.invoke('auth-handler', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ initData })
+                    body: { initData },
                 });
 
-                const data = await response.json();
-
-                if (data.token) {
-                    auth.token = data.token;
-                    const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
-                    auth.userId = decodedToken.tg_id;
-                    auth.isAuthenticated = true;
-
-                    // Установка сессии в Supabase - ключевой шаг
-                    await supabase.auth.setSession({
-                        access_token: auth.token,
-                        refresh_token: auth.token
-                    });
-                    
-                    // Разблокируем кнопку формы после успешной аутентификации
-                    document.getElementById('orderForm').querySelector('button[type="submit"]').removeAttribute('disabled');
-                    document.getElementById('status').textContent = 'Готово!';
-                    console.log("Аутентификация успешна. ID пользователя:", auth.userId);
-                } else {
+                if (error || !data || !data.token) {
+                    console.error('Supabase function call error:', error || 'Token not found.');
                     throw new Error('Аутентификация не удалась.');
                 }
+
+                auth.token = data.token;
+                const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
+                auth.userId = decodedToken.tg_id;
+                auth.isAuthenticated = true;
+
+                // Set session is crucial for RLS
+                await supabase.auth.setSession({
+                    access_token: auth.token,
+                    refresh_token: auth.token
+                });
+                
+                document.getElementById('orderForm').querySelector('button[type="submit"]').removeAttribute('disabled');
+                document.getElementById('status').textContent = 'Готово!';
+                console.log("Аутентификация успешна. ID пользователя:", auth.userId);
+
             } else {
+                // Test mode
                 auth.userId = 123456789;
                 auth.isAuthenticated = true;
-                // В тестовом режиме тоже разблокируем кнопку
                 document.getElementById('orderForm').querySelector('button[type="submit"]').removeAttribute('disabled');
                 document.getElementById('status').textContent = 'Приложение не в Telegram. Работает в тестовом режиме!';
                 console.warn('Приложение не в Telegram. Работает в тестовом режиме!');
@@ -144,31 +137,28 @@ async function authenticateUser() {
             console.error('Ошибка аутентификации:', error);
             auth.userId = 123456789;
             auth.isAuthenticated = true;
-            // В случае ошибки тоже разблокируем кнопку для локального тестирования
             document.getElementById('orderForm').querySelector('button[type="submit"]').removeAttribute('disabled');
             document.getElementById('status').textContent = 'Ошибка аутентификации. Работает в тестовом режиме.';
             console.warn('Аутентификация не удалась. Работает в тестовом режиме!');
         }
     }
-
-    // Вызываем функцию аутентификации при загрузке
+    
     authenticateUser();
-    // === 4. Функции для работы с данными ===
 
-    // Сохранение нового заказа
+    // === 4. Функции для работы с данными ===
+    // Сохранение нового заказа - исправлено
     document.getElementById('orderForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-
         const form = e.target;
         const date = form.date.value;
         const title = form.title.value;
         const packages = parseInt(form.packages.value, 10);
         const price = parseFloat(form.price.value);
 
-        // Благодаря RLS и setSession, user_id не нужен в insert!
+        // RLS will automatically apply the user_id from the session!
         const { error } = await supabase
             .from('orders')
-            .insert([{ user_id: auth.userId, date, title, packages, price }]);
+            .insert([{ date, title, packages, price }]);
 
         if (error) {
             document.getElementById('status').textContent = 'Ошибка сохранения!';
