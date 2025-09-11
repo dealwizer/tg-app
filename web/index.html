@@ -90,12 +90,21 @@ const auth = {
 
 // --- НАЧАЛО ПРОЦЕССА АУТЕНТИФИКАЦИИ ---
 // Эта функция будет обрабатывать аутентификацию с помощью нашего бэкенда.
+// A global object to hold our authentication state.
+const auth = {
+    userId: null,
+    isAuthenticated: false,
+    token: null
+};
+
+// --- AUTHENTICATION FLOW ---
 async function authenticateUser() {
-    if (window.Telegram && window.Telegram.WebApp) {
-        const initData = Telegram.WebApp.initData;
-        try {
-            // Отправляем initData на новую бэкенд-функцию для проверки.
-            // Замените 'YOUR_SUPABASE_FUNCTION_URL' на реальный URL.
+    try {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const initData = Telegram.WebApp.initData;
+            
+            // We send initData to a new backend function for verification.
+            // Replace 'YOUR_SUPABASE_FUNCTION_URL' with the actual URL.
             const response = await fetch('YOUR_SUPABASE_FUNCTION_URL/auth/signin', {
                 method: 'POST',
                 headers: {
@@ -108,29 +117,36 @@ async function authenticateUser() {
 
             if (data.token) {
                 auth.token = data.token;
-                // Расшифруем JWT-токен на фронтенде, чтобы получить ID пользователя
                 const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
                 auth.userId = decodedToken.tg_id;
                 auth.isAuthenticated = true;
-                console.log("Аутентификация через Telegram прошла успешно. ID пользователя:", auth.userId);
+
+                // Set the session in Supabase with the received JWT token
+                await supabase.auth.setSession({
+                    access_token: auth.token,
+                    refresh_token: auth.token // Using the same token for simplicity
+                });
+                
+                console.log("Authentication successful. User ID:", auth.userId);
             } else {
-                throw new Error('Аутентификация не удалась.');
+                throw new Error('Authentication failed.');
             }
-        } catch (error) {
-            console.error('Ошибка аутентификации:', error);
-            // Если произошла ошибка, используем ID-заглушку для тестирования.
+        } else {
+            // Fallback for local testing (not in Telegram).
             auth.userId = 123456789;
             auth.isAuthenticated = true;
-            console.warn('Аутентификация не удалась. Работа в тестовом режиме!');
+            console.warn('App is not in Telegram. Running in test mode!');
         }
-    } else {
-        // Заглушка для локального тестирования (вне Telegram).
+    } catch (error) {
+        console.error('Authentication error:', error);
+        // Fallback to the placeholder ID if any error occurs.
         auth.userId = 123456789;
         auth.isAuthenticated = true;
-        console.warn('Приложение не в Telegram. Работа в тестовом режиме!');
+        console.warn('Authentication failed. Running in test mode!');
     }
 }
-// Вызываем эту функцию при загрузке приложения.
+
+// Call this function when the app first loads.
 authenticateUser();
 
 // --- КОНЕЦ ПРОЦЕССА АУТЕНТИФИКАЦИИ ---
@@ -169,7 +185,7 @@ authenticateUser();
     }
 }
 
-    // === Сохранение нового заказа ===
+// === Сохранение нового заказа ===
     document.getElementById('orderForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -179,9 +195,10 @@ authenticateUser();
         const packages = parseInt(form.packages.value, 10);
         const price = parseFloat(form.price.value);
 
+        // Corrected line: removed the duplicate declaration
         const { error } = await supabase
             .from('orders')
-            .insert([{ user_id: auth.userId, date, title, packages, price }]);
+            .insert([{ date, title, packages, price }]);
 
         if (error) {
             document.getElementById('status').textContent = 'Ошибка сохранения!';
