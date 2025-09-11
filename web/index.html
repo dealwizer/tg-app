@@ -6,6 +6,7 @@
   <title>Учет заказов</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <div class="app-container">
@@ -80,23 +81,59 @@
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-    let userTelegramId = null;
-let userIsAuthenticated = false;
+   // Глобальный объект для хранения состояния аутентификации.
+const auth = {
+    userId: null,
+    isAuthenticated: false,
+    token: null
+};
 
-// Проверка: запущено ли приложение в Telegram Mini App
-if (window.Telegram && window.Telegram.WebApp) {
-    const initData = Telegram.WebApp.initDataUnsafe;
-    if (initData && initData.user) {
-        userTelegramId = initData.user.id;
-        userIsAuthenticated = true;
+// --- НАЧАЛО ПРОЦЕССА АУТЕНТИФИКАЦИИ ---
+// Эта функция будет обрабатывать аутентификацию с помощью нашего бэкенда.
+async function authenticateUser() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        const initData = Telegram.WebApp.initData;
+        try {
+            // Отправляем initData на новую бэкенд-функцию для проверки.
+            // Замените 'YOUR_SUPABASE_FUNCTION_URL' на реальный URL.
+            const response = await fetch('YOUR_SUPABASE_FUNCTION_URL/auth/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ initData })
+            });
+
+            const data = await response.json();
+
+            if (data.token) {
+                auth.token = data.token;
+                // Расшифруем JWT-токен на фронтенде, чтобы получить ID пользователя
+                const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
+                auth.userId = decodedToken.tg_id;
+                auth.isAuthenticated = true;
+                console.log("Аутентификация через Telegram прошла успешно. ID пользователя:", auth.userId);
+            } else {
+                throw new Error('Аутентификация не удалась.');
+            }
+        } catch (error) {
+            console.error('Ошибка аутентификации:', error);
+            // Если произошла ошибка, используем ID-заглушку для тестирования.
+            auth.userId = 123456789;
+            auth.isAuthenticated = true;
+            console.warn('Аутентификация не удалась. Работа в тестовом режиме!');
+        }
+    } else {
+        // Заглушка для локального тестирования (вне Telegram).
+        auth.userId = 123456789;
+        auth.isAuthenticated = true;
+        console.warn('Приложение не в Telegram. Работа в тестовом режиме!');
     }
-} else {
-    // ЗАГЛУШКА для локального тестирования
-    // Приложение работает в тестовом режиме с фиксированным ID.
-    userTelegramId = 123456789;
-    userIsAuthenticated = true;
-    console.warn('Приложение работает в тестовом режиме!');
 }
+// Вызываем эту функцию при загрузке приложения.
+authenticateUser();
+
+// --- КОНЕЦ ПРОЦЕССА АУТЕНТИФИКАЦИИ ---
     // === Подключение к Supabase ===
     const { createClient } = window.supabase;
     const supabaseUrl = 'https://wagljnxlaehfjliwidqw.supabase.co';
@@ -144,7 +181,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 
         const { error } = await supabase
             .from('orders')
-            .insert([{ user_id: userTelegramId.toString(), date, title, packages, price }]);
+            .insert([{ user_id: auth.userId, date, title, packages, price }]);
 
         if (error) {
             document.getElementById('status').textContent = 'Ошибка сохранения!';
@@ -170,7 +207,7 @@ if (window.Telegram && window.Telegram.WebApp) {
             .from("orders")
             .select("*")
             .eq("date", date)
-            .eq("user_id", userTelegramId.toString());
+            .eq("user_id", auth.userId);
 
         if (error) {
             console.error("Ошибка при загрузке заказов:", error);
@@ -217,7 +254,7 @@ if (window.Telegram && window.Telegram.WebApp) {
             .from("orders")
             .delete()
             .eq("id", id)
-            .eq("user_id", userTelegramId.toString());
+            .eq("user_id", auth.userId);
 
         if (error) {
             console.error("Ошибка при удалении заказа:", error);
@@ -248,7 +285,7 @@ if (window.Telegram && window.Telegram.WebApp) {
                 price: parseFloat(newPrice) 
             })
             .eq("id", id)
-            .eq("user_id", userTelegramId.toString());
+            .eq("user_id", auth.userId);
 
         if (error) {
             console.error("Ошибка при обновлении заказа:", error);
@@ -265,7 +302,7 @@ if (window.Telegram && window.Telegram.WebApp) {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
 
-    let query = supabase.from('orders').select('*').eq('user_id', userTelegramId);
+    let query = supabase.from('orders').select('*').eq('user_id', auth.userId);
 
     if (startDate && endDate) {
         query = query.gte('date', startDate).lte('date', endDate);
