@@ -239,22 +239,27 @@ form {
 
 .input-container {
     width: 100%;
-    /* Добавляем отступы здесь, чтобы инпут не выходил за границы */
-    padding: 0 10px; 
+    /* Используем padding для создания внутреннего отступа */
+    padding: 12px 16px; 
     margin-bottom: 10px;
     box-sizing: border-box;
-    /* Если нужно, добавляем бордер, чтобы было видно границы */
+    /* Убираем border, если он не нужен для дизайна */
     border: 1px solid var(--input-border);
     border-radius: 10px;
+    /* Устанавливаем фон как у других инпутов */
+    background-color: var(--input-bg);
 }
 
 input[type="date"] {
-    /* Удаляем все стандартные стили, кроме тех, что нужны для выравнивания */
+    /* Удаляем padding, так как он теперь у контейнера */
+    padding: 0;
+    /* Убираем border */
     border: none;
-    padding: 12px 0;
+    /* Убеждаемся, что фон прозрачный, чтобы было видно фон контейнера */
+    background-color: transparent; 
     width: 100%;
     font-size: 1rem;
-    background-color: transparent; /* Убираем фон, чтобы он был как у родителя */
+    color: var(--text-color);
 }
 
 /* Также уберем лишние стили с input[type="date"] */
