@@ -34,14 +34,15 @@
                     <p class="toggle-auth">Нет аккаунта? <a href="#" onclick="showRegister()">Зарегистрироваться</a></p>
                 </div>
                 <div class="auth-form-container" id="register-form-container" style="display: none;">
-                    <h2 class="title">Регистрация</h2>
-                    <form id="registerForm">
-                        <input type="text" name="username" placeholder="Имя пользователя" required>
-                        <input type="password" name="password" placeholder="Пароль" required>
-                        <button type="submit">Зарегистрироваться</button>
-                    </form>
-                    <p class="toggle-auth">Уже есть аккаунт? <a href="#" onclick="showLogin()">Войти</a></p>
-                </div>
+    <h2 class="title">Регистрация</h2>
+    <form id="registerForm">
+        <input type="text" name="full_name" placeholder="Полное имя" required>
+        <input type="text" name="username" placeholder="Логин (будет частью email)" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <p class="toggle-auth">Уже есть аккаунт? <a href="#" onclick="showLogin()">Войти</a></p>
+</div>
                 <p id="status"></p>
             </div>
         </section>
@@ -180,21 +181,70 @@
             const password = e.target.password.value;
             loginUser(username, password);
         });
-        document.getElementById('registerForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-            registerUser(username, password);
+        // Найдите этот блок в вашем коде
+// Найдите этот блок в вашем коде
+document.getElementById('registerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const full_name = e.target.full_name.value;
+    const username = e.target.username.value;
+    const password = e.target.password.value;
+    registerUser(full_name, username, password);
+});
+
+// Обновите функцию registerUser
+// Function to handle user registration
+async function registerUser(full_name, username, password) {
+    document.getElementById('status').textContent = 'Регистрация...';
+
+    const email = username.trim().toLowerCase().replace(/\s/g, '') + '@localapp.com';
+
+    // Шаг 1: Создание пользователя в Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+
+    if (authError) {
+        document.getElementById('status').textContent = 'Ошибка: ' + authError.message;
+        console.error('Registration error:', authError);
+        return;
+    }
+
+    const userId = authData.user.id;
+
+    // Шаг 2: Проверка существования профиля
+    // Используем .maybeSingle(), чтобы избежать ошибок, если профиль не найден
+    const { data: existingProfile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
+
+    // Шаг 3: Создание профиля, только если он еще не существует
+    if (!existingProfile) {
+        const { error: profileError } = await supabase.from('users').insert({ 
+            id: userId, 
+            full_name: full_name, 
+            theme: 'light' 
         });
+
+        if (profileError) {
+            console.error('Profile creation error:', profileError);
+            document.getElementById('status').textContent = 'Ошибка создания профиля: ' + profileError.message;
+            return;
+        }
+    }
+
+    // Если все успешно, показываем сообщение
+    document.getElementById('status').textContent = 'Регистрация успешна. Теперь вы можете войти.';
+    setTimeout(() => { showLogin(); document.getElementById('status').textContent = ''; }, 3000);
+}
 
         // Order form submission
         document.getElementById('orderForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const form = e.target;
-            const date = form.elements['order-date'].value;
-            const title = form.elements['order-title'].value;
-            const packages = parseInt(form.elements['order-packages'].value, 10);
-            const price = parseFloat(form.elements['order-price'].value);
+    e.preventDefault();
+    const form = e.target;
+    const date = form.elements['date'].value;
+    const title = form.elements['title'].value;
+    const packages = parseInt(form.elements['packages'].value, 10);
+    const price = parseFloat(form.elements['price'].value);
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 alert('Вы не авторизованы!');
@@ -258,9 +308,9 @@
 
    
 
-    document.querySelector('.logout-btn').addEventListener('click', () => {
-        logout();
-    });
+  document.querySelector('#logout-btn').addEventListener('click', () => {
+    logout();
+});
 
     // **Запускаем проверку сессии и инициализацию полей ввода при загрузке страницы**
     document.addEventListener('DOMContentLoaded', () => {
@@ -362,25 +412,35 @@
         document.getElementById('register-form-container').style.display = 'block';
     }
 
-    async function registerUser(username, password) {
-        document.getElementById('status').textContent = 'Регистрация...';
-        const email = username + '@localapp.com';
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) {
-            document.getElementById('status').textContent = 'Ошибка: ' + error.message;
-            console.error('Registration error:', error);
+    // Function to handle user registration
+async function registerUser(full_name, username, password) {
+    document.getElementById('status').textContent = 'Регистрация...';
+
+    // ⛔️ IMPORTANT: Check if the username is empty after trimming whitespace
+    if (!username.trim()) {
+        document.getElementById('status').textContent = 'Ошибка: Пожалуйста, введите логин.';
+        return; // Stop the function if username is invalid
+    }
+
+    const email = username.trim().toLowerCase().replace(/\s/g, '') + '@localapp.com';
+
+    // Now proceed with the Supabase signup as normal
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+        document.getElementById('status').textContent = 'Ошибка: ' + error.message;
+        console.error('Registration error:', error);
+    } else {
+        const { error: profileError } = await supabase.from('users').insert({ id: data.user.id, full_name: full_name, theme: 'light' });
+        if (profileError) {
+            console.error('Profile creation error:', profileError);
+            document.getElementById('status').textContent = 'Ошибка создания профиля: ' + profileError.message;
         } else {
-            // Исправлено: используем 'full_name' вместо 'username'
-            const { error: profileError } = await supabase.from('users').insert({ id: data.user.id, full_name: username, theme: 'light' });
-            if (profileError) {
-                console.error('Profile creation error:', profileError);
-                document.getElementById('status').textContent = 'Ошибка создания профиля: ' + profileError.message;
-            } else {
-                document.getElementById('status').textContent = 'Регистрация успешна. Теперь вы можете войти.';
-                setTimeout(() => { showLogin(); document.getElementById('status').textContent = ''; }, 3000);
-            }
+            document.getElementById('status').textContent = 'Регистрация успешна. Теперь вы можете войти.';
+            setTimeout(() => { showLogin(); document.getElementById('status').textContent = ''; }, 3000);
         }
     }
+}
 
     async function loginUser(username, password) {
         document.getElementById('status').textContent = 'Вход...';
@@ -532,23 +592,24 @@
         reportResult.innerHTML = html;
     }
 
-    async function loadEmployeesForManager() {
-        const { data: employees, error } = await supabase.from('users').select('id, full_name').eq('role', 'employee');
-        if (error) {
-            console.error('Ошибка при загрузке сотрудников:', error);
-            return;
-        }
-        const employeeSelect = document.getElementById('employee-select');
-        if (employeeSelect) {
-            employeeSelect.innerHTML = '<option value="">Все сотрудники</option>';
-            employees.forEach(emp => {
-                const option = document.createElement('option');
-                option.value = emp.id;
-                option.textContent = emp.full_name;
-                employeeSelect.appendChild(option);
-            });
-        }
+    // Обновленная версия
+async function loadEmployeesForManager() {
+    const { data: employees, error } = await supabase.from('users').select('id, full_name'); // Убрали фильтр по role
+    if (error) {
+        console.error('Ошибка при загрузке сотрудников:', error);
+        return;
     }
+    const employeeSelect = document.getElementById('employee-select');
+    if (employeeSelect) {
+        employeeSelect.innerHTML = '<option value="">Все сотрудники</option>';
+        employees.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = emp.full_name;
+            employeeSelect.appendChild(option);
+        });
+    }
+}
 
    async function loadProfileData() {
     const { data: { user } } = await supabase.auth.getUser();
