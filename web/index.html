@@ -162,6 +162,50 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    //виброотклик
+    // Функция для виброотклика
+function vibrate() {
+    // Проверяем, поддерживает ли браузер API вибрации
+    if ("vibrate" in navigator) {
+        // Вибрируем 100 миллисекунд
+        navigator.vibrate(100); 
+    }
+}
+
+// Пример: добавление виброотклика к кнопке "Сохранить"
+document.getElementById('orderForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Вызываем виброотклик
+    vibrate();
+
+    const form = e.target;
+    // ... остальной код сохранения заказа
+});
+
+// Пример: добавление виброотклика к кнопкам "Редактировать" и "Удалить"
+document.getElementById('ordersContent').addEventListener('click', (event) => {
+    const target = event.target;
+    const orderItem = target.closest('.order-item');
+    if (!orderItem) return;
+
+    if (target.classList.contains('edit-btn') || target.classList.contains('delete-btn')) {
+        // Вызываем виброотклик для кнопок редактирования/удаления
+        vibrate();
+    }
+    
+    // ... остальной код для редактирования и удаления
+});
+
+// Пример: добавление виброотклика к кнопке "Показать"
+const showOrdersBtn = document.getElementById('showOrdersBtn');
+if (showOrdersBtn) {
+    showOrdersBtn.addEventListener('click', () => {
+        vibrate();
+        loadOrders();
+    });
+}
+
     // --- 1. Page and Theme Management ---
     const themeToggle = document.getElementById('theme-toggle');
     const profileThemeToggle = document.getElementById('profile-theme-toggle');
