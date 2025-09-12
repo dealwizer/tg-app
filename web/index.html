@@ -90,22 +90,14 @@
                     </section>
                     <section id="orders-list" class="page">
                         <h2 class="title">Список заказов</h2>
-                        <div class="input-group">
-                            <label for="filter-date">Дата заказа</label>
-                            <input type="date" id="filter-date">
-                        </div>
+                        <input type="date" id="filterDate" class="has-placeholder" data-placeholder="Дата заказа">
                         <button id="showOrdersBtn" onclick="loadOrders()">Показать</button>
                         <div id="ordersContent"></div>
                     </section>
                     <section id="report" class="page">
                         <h2 class="title">Отчёт</h2>
-                         <div class="input-group">
-                                <label for="start-date">Начало периода</label>
-                                <input type="date" id="start-date">
-                        <div class="input-group">
-                                <label for="end-date">Конец периода</label>
-                                <input type="date" id="end-date">
-                            </div>
+                        <input type="date" id="startDate" class="has-placeholder" data-placeholder="Начало периода">
+                        <input type="date" id="endDate" class="has-placeholder" data-placeholder="Конец периода">
                         <div class="button-container">
                             <button onclick="getReport()">Сформировать отчёт</button>
                         </div>
@@ -403,42 +395,46 @@
     }
 
     async function getReport() {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            alert('Вы не авторизованы!');
-            return;
-        }
-
-        let query = supabase.from('orders').select('*').eq('user_id', user.id);
-        if (startDate && endDate) {
-            query = query.gte('date', startDate).lte('date', endDate);
-        }
-        const { data, error } = await query;
-        const reportResult = document.getElementById('reportResult');
-        if (error) {
-            reportResult.innerHTML = '<p>Ошибка при получении отчета.</p>';
-            console.error("Ошибка при получении отчёта:", error);
-            return;
-        }
-        if (!data || data.length === 0) {
-            reportResult.innerHTML = '<p>Нет данных за выбранный период.</p>';
-            return;
-        }
-
-        let total = 0;
-        let html = '<h3>Суммы по заказам:</h3>';
-        data.forEach(order => {
-            const sum = order.packages * order.price;
-            total += sum;
-            const dateParts = order.date.split('-');
-            const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
-            html += `<div class="report-item"><span style="color: #999;">${formattedDate} </span>${order.title}<span style="color: #999;"> — </span>${order.packages}<span style="color: #999;"> × </span>${parseFloat(order.price)}<span style="color: #999;"> = </span>${parseFloat(sum)}</div><hr class="separator">`;
-        });
-        html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total).toFixed(2)} <span style="color: #999;"> сом </span> </b></p>`;
-        reportResult.innerHTML = html;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        alert('Вы не авторизованы!');
+        return;
     }
+
+    let query = supabase.from('orders').select('*').eq('user_id', user.id);
+    if (startDate && endDate) {
+        query = query.gte('date', startDate).lte('date', endDate);
+    }
+    const { data, error } = await query;
+    const reportResult = document.getElementById('reportResult');
+    if (error) {
+        reportResult.innerHTML = '<p>Ошибка при получении отчета.</p>';
+        console.error("Ошибка при получении отчёта:", error);
+        return;
+    }
+    if (!data || data.length === 0) {
+        reportResult.innerHTML = '<p>Нет данных за выбранный период.</p>';
+        return;
+    }
+
+    let total = 0;
+    let html = '<h3>Суммы по заказам:</h3>';
+    data.forEach(order => {
+        const sum = order.packages * order.price;
+        total += sum;
+        const dateParts = order.date.split('-');
+        const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+        html += `<div class="report-item"><span style="color: #999;">${formattedDate} </span>${order.title}<span style="color: #999;"> — </span>${order.packages}<span style="color: #999;"> × </span>${parseFloat(order.price)}<span style="color: #999;"> = </span>${parseFloat(sum)}</div><hr class="separator">`;
+    });
+    
+    // **Изменения здесь**
+    const totalRounded = Math.round(total);
+    
+    html += `<p style="font-size: 20px"><b>Итого: ${totalRounded} <span style="color: #999;"> сом </span> </b></p>`;
+    reportResult.innerHTML = html;
+}
 
     async function loadProfileData() {
         const { data: { user } } = await supabase.auth.getUser();
@@ -460,8 +456,11 @@
             return;
         }
 
-        const totalEarned = orders.reduce((sum, order) => sum + (order.packages * order.price), 0);
-        document.getElementById('total-earned').textContent = parseFloat(totalEarned).toFixed(2);
+    const totalEarned = orders.reduce((sum, order) => sum + (order.packages * order.price), 0);
+    
+    // **Изменения здесь**
+    const totalRounded = Math.round(totalEarned);
+    document.getElementById('total-earned').textContent = totalRounded;
     }
 
     async function logout() {

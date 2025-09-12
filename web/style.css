@@ -50,15 +50,14 @@ input[type="date"] {
     background-color: var(--input-bg);
     border-radius: 10px;
     margin-bottom: 10px;
-    width: 100%;
+    width: 100%; /* <-- Самое важное изменение */
     box-sizing: border-box;
     font-size: 1rem;
     color: var(--text-color);
-    margin-bottom: 10px; /* Единый отступ для всех полей */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Стилизация стрелок в инпуте типа date */
