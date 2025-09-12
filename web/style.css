@@ -10,6 +10,7 @@
     --tab-active-bg: #E5E7EB;
     --separator-color: #E5E7EB;
     --secondary-text: #9CA3AF;
+    --placeholder-color: #9CA3AF; /* <-- Добавлено! */
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
     --border-radius: 12px;
 }
@@ -26,25 +27,25 @@ body.dark-theme {
     --tab-active-bg: #48484A;
     --separator-color: #48484A;
     --secondary-text: #8E8E93;
+    --placeholder-color: #8E8E93; /* <-- Добавлено! */
     --shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
-    /* Создаем отступы для всей страницы */
-    padding: 20px 20px 0 20px; 
+    padding: 20px 20px 0 20px;
     background-color: var(--bg-color);
     color: var(--text-color);
-    /* Убираем flex-контейнер с body, чтобы он не влиял на внутренние отступы */
-    /* display: block; */ 
     min-height: 100vh;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-
-/* Общие стили для инпутов, как мы их уже делали */
+/* --- Унифицированные стили для ВСЕХ полей ввода и кнопок --- */
+/* Удалил повторяющиеся правила. Теперь все инпуты (text, number, date)
+   стилизуются одинаково, что решает проблему с отступами и "прыжками". */
 input[type="text"],
+input[type="number"],
 input[type="date"] {
     padding: 12px 16px;
     border: 1px solid var(--input-border);
@@ -54,70 +55,80 @@ input[type="date"] {
     box-sizing: border-box;
     font-size: 1rem;
     color: var(--text-color);
-    margin-bottom: 10px;
+    margin-bottom: 10px; /* Единый отступ для всех полей */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Стили для плейсхолдера */
+/* Стилизация стрелок в инпуте типа date */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="rgb(153, 153, 153)" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') no-repeat;
+    background-size: contain;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* --- Стили для плейсхолдера, теперь они корректны --- */
 input.has-placeholder {
+    /* Основной цвет текста становится прозрачным */
     color: transparent;
 }
 
 input.has-placeholder::before {
     content: attr(data-placeholder);
-    color: var(--placeholder-color); /* <-- Добавьте эту строку */
+    /* Цвет плейсхолдера теперь берется из переменной,
+       которая меняется в зависимости от темы */
+    color: var(--placeholder-color);
     width: 100%;
     height: 100%;
     display: block;
     pointer-events: none;
 }
 
-/* Когда инпут в фокусе или имеет значение */
 input.has-placeholder:focus,
 input.has-placeholder:valid {
+    /* Когда поле заполнено или в фокусе, цвет текста возвращается */
     color: var(--text-color);
 }
 
 input.has-placeholder:focus::before,
 input.has-placeholder:valid::before {
+    /* Псевдоэлемент скрывается */
     content: '';
     display: none;
 }
 
-/* Specific styles for small buttons like "Редактировать" and "Удалить" */
+/* --- Остальной код без изменений --- */
 .actions button {
-    font-size: 0.8rem; /* Smaller font for these buttons */
-    padding: 8px; /* Less padding to make them smaller */
-    width: auto; /* Allow them to fit next to each other */
+    font-size: 0.8rem;
+    padding: 8px;
+    width: auto;
     margin: 5px;
 }
 
-
-
-/* Style for individual order items */
 .order-item {
-    display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Stack elements vertically */
+    display: flex;
+    flex-direction: column;
     padding: 15px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     margin-bottom: 15px;
 }
 
-/* Style for the actions row to place buttons */
 .actions {
     display: flex;
-    justify-content: flex-end; /* Align buttons to the right */
-    gap: 10px; /* Add space between buttons */
+    justify-content: flex-end;
+    gap: 10px;
     margin-top: 10px;
 }
 
 .app-container {
     width: 100%;
     max-width: 600px;
-    margin: 0 auto; /* Центрируем контейнер */
+    margin: 0 auto;
     background: var(--card-bg);
     border-radius: 15px;
     box-shadow: var(--shadow);
@@ -130,7 +141,7 @@ input.has-placeholder:valid::before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0; /* Изменяем padding, чтобы избежать дублирования */
+    padding: 20px 0;
 }
 
 .header .logo svg path {
@@ -148,7 +159,6 @@ input.has-placeholder:valid::before {
     transition: background-color 0.3s ease;
 }
 
-
 .tab-item {
     flex-grow: 1;
     background: none;
@@ -158,66 +168,52 @@ input.has-placeholder:valid::before {
     cursor: pointer;
     opacity: 0.5;
     transition: opacity 0.3s ease;
-    
-    /* Добавляем flexbox для центрирования иконки */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .tab-item.active {
-    /* Для активной вкладки opacity становится 100% */
     opacity: 1;
     background: none;
-    /* Убедитесь, что здесь нет правил для фона, например, background-color */
 }
 
 .tab-item svg {
     width: 24px;
     height: 24px;
 }
-/* В вашем существующем CSS */
-.tab-item.active .icon-bold {
-    /* Когда вкладка активна, показываем заполненную иконку */
-    opacity: 1;
-    /* Устанавливаем цвет заполнения на основной акцентный цвет */
-    fill: var(--text-color); 
 
+.tab-item.active .icon-bold {
+    opacity: 1;
+    fill: var(--text-color);
 }
 
-/* Для контурных иконок, если они используют currentColor и вы хотите, чтобы они тоже были акцентными */
 .tab-item.active .icon-outline {
     opacity: 0;
-    
-    /* Если хотите, чтобы контурная активная иконка тоже была акцентной */
-    /* stroke: var(--primary-color); */
 }
-/* Если у вас есть правила для svg, убедитесь, что они не мешают */
+
 .tab-item svg path {
     stroke: var(--text-color);
     transition: stroke 0.3s ease;
 }
 
 .tab-item .icon-bold {
-    /* По умолчанию скрываем заполненную иконку */
     display: none;
 }
 
 .tab-item .icon-outline {
-    /* По умолчанию показываем контурную иконку */
     display: block;
-        stroke: var(--text-color);
+    stroke: var(--text-color);
 }
 
 .tab-item.active .icon-outline {
-    /* Когда вкладка активна, скрываем контурную иконку */
     display: none;
 }
 
 .tab-item.active .icon-bold {
-    /* Когда вкладка активна, показываем заполненную иконку */
     display: block;
 }
+
 .content {
     padding: 20px;
 }
@@ -237,24 +233,19 @@ input.has-placeholder:valid::before {
     margin-bottom: 20px;
 }
 
-
-
 .auth-forms {
     padding: 10px;
-
-    
 }
 
 .auth-form-container {
     background-color: var(--card-bg);
     border-radius: var(--border-radius);
-    padding: 20px; /* Добавил отступы */
+    padding: 20px;
 }
 
-/* Стили для ссылок в формах */
 .toggle-auth a {
     color: var(--primary-color);
-    text-decoration: none; /* Убираем подчёркивание */
+    text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease-in-out;
 }
@@ -269,15 +260,17 @@ form {
     gap: 15px;
 }
 
-.input-container {
+/* ЭТОТ БЛОК НУЖНО УДАЛИТЬ, так как его стили дублируются выше */
+/* .input-container {
     padding: 0;
     margin-bottom: 10px;
-    border: none; /* Убираем бордер, чтобы не было дублирования */
+    border: none;
     background-color: transparent;
     box-sizing: border-box;
-}
+} */
 
-input[type="text"],
+/* И ЭТОТ БЛОК ТОЖЕ */
+/* input[type="text"],
 input[type="date"] {
     padding: 12px 16px;
     border: 1px solid var(--input-border);
@@ -288,17 +281,13 @@ input[type="date"] {
     font-size: 1rem;
     color: var(--text-color);
     transition: background-color 0.3s ease, border-color 0.3s ease;
-    
-    /* This is the key to preventing the "jump" on iOS */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-}
+} */
 
-
-
-
-input[type="text"],
+/* И этот блок также дублирует стили и должен быть удален */
+/* input[type="text"],
 input[type="number"],
 button,
 .button-container button {
@@ -306,21 +295,10 @@ button,
     padding: 12px;
     margin-bottom: 10px;
     font-size: 1rem;
-}
+} */
+
 *, *:before, *:after {
   box-sizing: border-box;
-}
-
-input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid var(--input-border);
-    background-color: var(--input-bg);
-    border-radius: 10px;
-    box-sizing: border-box;
-    font-size: 16px;
-    color: var(--text-color);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 input:focus {
@@ -328,7 +306,6 @@ input:focus {
     background-color: var(--input-bg);
     border-color: var(--primary-color);
 }
-
 
 button {
     padding: 12px;
@@ -340,6 +317,8 @@ button {
     font-weight: 500;
     font-size: 16px;
     transition: background-color 0.3s ease;
+    width: 100%; /* Устанавливаем ширину здесь, а не в дублирующих правилах */
+    margin-bottom: 10px; /* Устанавливаем отступ здесь */
 }
 
 button:hover {
@@ -452,7 +431,7 @@ input:checked + .slider:before {
 .theme-switch-container {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Центрирует элементы по вертикали */
-    width: 100%; /* Устанавливаем ширину на 100% для заполнения доступного пространства */
+    align-items: center;
+    width: 100%;
     padding-bottom: 20px;
 }
