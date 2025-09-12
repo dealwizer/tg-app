@@ -48,6 +48,7 @@ input[type="date"] {
     border: 1px solid var(--input-border);
     background-color: var(--input-bg);
     border-radius: 10px;
+    margin-bottom: 10px;
     width: 100%;
     box-sizing: border-box;
     font-size: 1rem;
@@ -86,7 +87,6 @@ input.has-placeholder:focus,
 input.has-placeholder:valid {
     color: var(--text-color); /* Когда есть значение, цвет становится основным */
 }
-
 input.has-placeholder:focus::before,
 input.has-placeholder:valid::before {
     content: '';
@@ -101,14 +101,7 @@ input.has-placeholder:valid::before {
     margin: 5px;
 }
 
-.order-item {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 15px;
-}
+
 
 .actions {
     display: flex;
@@ -338,6 +331,7 @@ button:hover {
     margin: 15px 0;
     transition: background-color 0.3s ease;
 }
+
 
 /* Theme Switcher */
 .switch {

@@ -145,23 +145,26 @@
     const profileThemeToggle = document.getElementById('profile-theme-toggle');
 
     // **Новая функция для инициализации инпутов даты**
-      function initializeDateInputs() {
+    function initializeDateInputs() {
         document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
             const checkValue = () => {
+                // Если у поля есть значение, удаляем класс для плейсхолдера
                 if (input.value) {
                     input.classList.remove('has-placeholder');
                 } else {
+                    // Иначе добавляем класс, чтобы плейсхолдер был виден
                     input.classList.add('has-placeholder');
                 }
             };
 
-            // Проверяем при загрузке или смене страницы
+            // Вызываем проверку при загрузке страницы (или при переключении)
             checkValue();
 
-            // Проверяем при изменении значения
+            // Добавляем слушатель, чтобы проверять изменения
             input.addEventListener('change', checkValue);
         });
     }
+
 
     function applyTheme(isDark) {
         document.body.classList.toggle('dark-theme', isDark);
@@ -200,21 +203,26 @@
     });
 
     function showPage(pageId) {
+        // Скрываем все страницы
         document.querySelectorAll('#main-app .page').forEach(page => {
             page.style.display = 'none';
         });
 
+        // Показываем нужную страницу
         document.getElementById(pageId).style.display = 'block';
 
+        // Обновляем активную вкладку в панели навигации
         document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
         const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
         if (activeTab) activeTab.classList.add('active');
 
+        // Если страница профиля, загружаем данные
         if (pageId === 'profile') {
             loadProfileData();
         }
 
-        // Вызываем функцию инициализации полей после показа страницы
+        // **Самое главное: вызываем инициализацию полей ввода даты**
+        // Это гарантирует, что плейсхолдеры будут работать на всех страницах
         initializeDateInputs();
     }
 
@@ -312,15 +320,19 @@
         }
 
         ordersList.innerHTML = data.map(order => `
-            <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
-                <div><strong>Название:</strong> ${order.title}</div>
-                <div><strong>Пакетов:</strong> ${order.packages}</div>
-                <div><strong>Цена:</strong> ${parseFloat(order.price)}</div>
-                <div class="actions">
-                    <button class="edit-btn">Редактировать</button>
-                    <button class="delete-btn">Удалить</button>
-                </div>
-            </div>
+        <div class="orders-list">
+          <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
+    <div class="info">
+        <div><strong>Название:</strong> ${order.title}</div>
+        <div><strong>Пакетов:</strong> ${order.packages}</div>
+        <div><strong>Цена:</strong> ${parseFloat(order.price)}</div>
+    </div>
+    <div class="actions">
+        <button class="edit-btn">Редактировать</button>
+        <button class="delete-btn">Удалить</button>
+    </div>
+</div>
+</div>
         `).join('');
     }
 
