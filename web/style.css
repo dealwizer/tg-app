@@ -67,11 +67,11 @@ input.has-placeholder {
 
 input.has-placeholder::before {
     content: attr(data-placeholder);
-    color: var(--placeholder-color);
+    color: var(--placeholder-color); /* <-- Добавьте эту строку */
     width: 100%;
     height: 100%;
     display: block;
-    pointer-events: none; /* Это позволяет кликать по инпуту */
+    pointer-events: none;
 }
 
 /* Когда инпут в фокусе или имеет значение */

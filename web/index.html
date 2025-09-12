@@ -136,27 +136,28 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
-        const checkValue = () => {
-            if (input.value) {
-                input.classList.remove('has-placeholder');
-            } else {
-                input.classList.add('has-placeholder');
-            }
-        };
-
-        // Проверяем при загрузке страницы
-        checkValue();
-
-        // Проверяем при изменении значения
-        input.addEventListener('change', checkValue);
-    });
-});
     // --- 1. Page and Theme Management ---
     const themeToggle = document.getElementById('theme-toggle');
-    // **Добавлен новый переключатель для страницы профиля**
     const profileThemeToggle = document.getElementById('profile-theme-toggle');
+
+    // **Новая функция для инициализации инпутов даты**
+    function initializeDateInputs() {
+        document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
+            const checkValue = () => {
+                if (input.value) {
+                    input.classList.remove('has-placeholder');
+                } else {
+                    input.classList.add('has-placeholder');
+                }
+            };
+
+            // Проверяем при загрузке или смене страницы
+            checkValue();
+
+            // Проверяем при изменении значения
+            input.addEventListener('change', checkValue);
+        });
+    }
 
     function applyTheme(isDark) {
         document.body.classList.toggle('dark-theme', isDark);
@@ -176,7 +177,7 @@
             const isDark = (data && data.theme === 'dark');
             applyTheme(isDark);
             themeToggle.checked = isDark;
-            profileThemeToggle.checked = isDark; // **Обновляем состояние переключателя на странице профиля**
+            profileThemeToggle.checked = isDark;
         }
     }
 
@@ -184,61 +185,56 @@
         const isDark = e.target.checked;
         applyTheme(isDark);
         saveThemePreference(isDark);
-        profileThemeToggle.checked = isDark; // **Синхронизируем состояние**
+        profileThemeToggle.checked = isDark;
     });
 
-    // **Добавлен обработчик для переключателя темы на странице профиля**
     profileThemeToggle.addEventListener('change', (e) => {
         const isDark = e.target.checked;
         applyTheme(isDark);
         saveThemePreference(isDark);
-        themeToggle.checked = isDark; // **Синхронизируем состояние**
+        themeToggle.checked = isDark;
     });
 
-   function showPage(pageId) {
-    // Скрываем все страницы внутри 'main-app'
-    document.querySelectorAll('#main-app .page').forEach(page => {
-        page.style.display = 'none';
-    });
+    function showPage(pageId) {
+        document.querySelectorAll('#main-app .page').forEach(page => {
+            page.style.display = 'none';
+        });
 
-    // Показываем нужную страницу
-    document.getElementById(pageId).style.display = 'block';
+        document.getElementById(pageId).style.display = 'block';
 
-    // Обновляем активную вкладку
-    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-    const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
-    if (activeTab) activeTab.classList.add('active');
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+        const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
+        if (activeTab) activeTab.classList.add('active');
 
-    // **Загрузка данных для страницы профиля при ее отображении**
-    if (pageId === 'profile') {
-        loadProfileData();
+        if (pageId === 'profile') {
+            loadProfileData();
+        }
+
+        // **Вызываем функцию инициализации полей после показа страницы**
+        initializeDateInputs();
     }
-}
 
-function showAuth() {
-    document.getElementById('auth').style.display = 'block';
-    document.getElementById('main-app').style.display = 'none';
-    showLogin();
-}
-
-async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        showApp();
-    } else {
-        showAuth();
+    function showAuth() {
+        document.getElementById('auth').style.display = 'block';
+        document.getElementById('main-app').style.display = 'none';
+        showLogin();
     }
-}
 
-// Запускаем проверку сессии при загрузке страницы
-checkSession();
+    async function checkSession() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            showApp();
+        } else {
+            showAuth();
+        }
+    }
 
-function showApp() {
-    document.getElementById('auth').style.display = 'none';
-    document.getElementById('main-app').style.display = 'block';
-    showPage('order'); // Показываем первую страницу
-    loadThemePreference(); // Загружаем настройки темы
-}
+    function showApp() {
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        showPage('order');
+        loadThemePreference();
+    }
 
     function showLogin() {
         document.getElementById('login-form-container').style.display = 'block';
@@ -251,26 +247,25 @@ function showApp() {
     }
 
     // --- 2. Authentication Logic ---
-async function registerUser(username, password) {
-    document.getElementById('status').textContent = 'Регистрация...';
-    const email = username + '@localapp.com';
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    async function registerUser(username, password) {
+        document.getElementById('status').textContent = 'Регистрация...';
+        const email = username + '@localapp.com';
+        const { data, error } = await supabase.auth.signUp({ email, password });
 
-    if (error) {
-        document.getElementById('status').textContent = 'Ошибка: ' + error.message;
-        console.error('Registration error:', error);
-    } else {
-        // Создание профиля в таблице 'users'
-        const { error: profileError } = await supabase.from('users').insert({ id: data.user.id, username: username, theme: 'light' });
-        if (profileError) {
-            console.error('Profile creation error:', profileError);
-            document.getElementById('status').textContent = 'Ошибка создания профиля: ' + profileError.message;
+        if (error) {
+            document.getElementById('status').textContent = 'Ошибка: ' + error.message;
+            console.error('Registration error:', error);
         } else {
-            document.getElementById('status').textContent = 'Регистрация успешна. Теперь вы можете войти.';
-            setTimeout(() => { showLogin(); document.getElementById('status').textContent = ''; }, 3000);
+            const { error: profileError } = await supabase.from('users').insert({ id: data.user.id, username: username, theme: 'light' });
+            if (profileError) {
+                console.error('Profile creation error:', profileError);
+                document.getElementById('status').textContent = 'Ошибка создания профиля: ' + profileError.message;
+            } else {
+                document.getElementById('status').textContent = 'Регистрация успешна. Теперь вы можете войти.';
+                setTimeout(() => { showLogin(); document.getElementById('status').textContent = ''; }, 3000);
+            }
         }
     }
-}
 
     async function loginUser(username, password) {
         document.getElementById('status').textContent = 'Вход...';
@@ -286,209 +281,190 @@ async function registerUser(username, password) {
         }
     }
 
-    async function checkSession() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            showApp();
+    // --- 3. Data Handling Functions ---
+    async function loadOrders() {
+        const date = document.getElementById("filterDate").value;
+        if (!date) {
+            alert("Выбери дату!");
+            return;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+
+        const { data, error } = await supabase.from("orders").select("*").eq("date", date).eq('user_id', user.id);
+        const ordersList = document.getElementById("ordersContent");
+        if (error) {
+            console.error("Ошибка при загрузке заказов:", error);
+            ordersList.innerHTML = "<p>Ошибка при загрузке данных.</p>";
+            return;
+        }
+        if (!data || data.length === 0) {
+            ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
+            return;
+        }
+
+        ordersList.innerHTML = data.map(order => `
+            <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
+                <div><strong>Название:</strong> ${order.title}</div>
+                <div><strong>Пакетов:</strong> ${order.packages}</div>
+                <div><strong>Цена:</strong> ${parseFloat(order.price)}</div>
+                <div class="actions">
+                    <button class="edit-btn">Редактировать</button>
+                    <button class="delete-btn">Удалить</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const date = form.date.value;
+        const title = form.title.value;
+        const packages = parseInt(form.packages.value, 10);
+        const price = parseFloat(form.price.value);
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+
+        const { error } = await supabase.from('orders').insert([
+            { date, title, packages, price, user_id: user.id }
+        ]);
+
+        if (error) {
+            alert('Ошибка сохранения!');
+            console.error(error);
         } else {
-            showPage('auth');
+            alert('Заказ сохранен!');
+            form.reset();
+        }
+    });
+
+    async function deleteOrder(id) {
+        if (!confirm("Вы уверены, что хотите удалить этот заказ?")) return;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+        const { error } = await supabase.from("orders").delete().eq("id", id).eq('user_id', user.id);
+        if (error) {
+            console.error("Ошибка при удалении заказа:", error);
+            alert("Не удалось удалить заказ.");
+            return;
+        }
+        alert("Заказ успешно удален!");
+        loadOrders();
+    }
+
+    async function editOrder(id, title, packages, price) {
+        const newTitle = prompt("Название заказа:", title);
+        if (newTitle === null) return;
+        const newPackages = prompt("Количество пакетов:", packages);
+        if (newPackages === null) return;
+        const newPrice = prompt("Цена за пакет:", price);
+        if (newPrice === null) return;
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+
+        const { error } = await supabase.from("orders").update({
+            title: newTitle,
+            packages: parseInt(newPackages, 10),
+            price: parseFloat(newPrice)
+        }).eq("id", id).eq('user_id', user.id);
+
+        if (error) {
+            console.error("Ошибка при обновлении заказа:", error);
+            alert("Не удалось обновить заказ.");
+            return;
+        }
+        alert("Заказ успешно обновлен!");
+        loadOrders();
+    }
+
+    async function getReport() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+
+        let query = supabase.from('orders').select('*').eq('user_id', user.id);
+        if (startDate && endDate) {
+            query = query.gte('date', startDate).lte('date', endDate);
+        }
+        const { data, error } = await query;
+        const reportResult = document.getElementById('reportResult');
+        if (error) {
+            reportResult.innerHTML = '<p>Ошибка при получении отчета.</p>';
+            console.error("Ошибка при получении отчёта:", error);
+            return;
+        }
+        if (!data || data.length === 0) {
+            reportResult.innerHTML = '<p>Нет данных за выбранный период.</p>';
+            return;
+        }
+
+        let total = 0;
+        let html = '<h3>Суммы по заказам:</h3>';
+        data.forEach(order => {
+            const sum = order.packages * order.price;
+            total += sum;
+            const dateParts = order.date.split('-');
+            const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+            html += `<div class="report-item"><span style="color: #999;">${formattedDate} </span>${order.title}<span style="color: #999;"> — </span>${order.packages}<span style="color: #999;"> × </span>${parseFloat(order.price)}<span style="color: #999;"> = </span>${parseFloat(sum)}</div><hr class="separator">`;
+        });
+        html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total).toFixed(2)} <span style="color: #999;"> сом </span> </b></p>`;
+        reportResult.innerHTML = html;
+    }
+
+    async function loadProfileData() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+
+        const username = user.email.replace('@localapp.com', '');
+        const password = localStorage.getItem(`password-${username}`);
+
+        document.getElementById('profile-username').textContent = username;
+        document.getElementById('profile-password-display').textContent = password;
+
+        const { data: orders, error } = await supabase.from('orders').select('packages, price').eq('user_id', user.id);
+        if (error) {
+            console.error('Ошибка при расчете заработка:', error);
+            document.getElementById('total-earned').textContent = 'Ошибка';
+            return;
+        }
+
+        const totalEarned = orders.reduce((sum, order) => sum + (order.packages * order.price), 0);
+        document.getElementById('total-earned').textContent = parseFloat(totalEarned).toFixed(2);
+    }
+
+    async function logout() {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error('Ошибка выхода:', error);
+        } else {
+            showAuth();
         }
     }
-    checkSession();
 
-    // --- 3. Data Handling Functions ---
-
- async function loadOrders() {
-    const date = document.getElementById("filterDate").value;
-    if (!date) {
-        alert("Выбери дату!");
-        return;
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        alert('Вы не авторизованы!');
-        return;
-    }
-
-    const { data, error } = await supabase.from("orders").select("*").eq("date", date).eq('user_id', user.id);
-    const ordersList = document.getElementById("ordersContent");
-    if (error) {
-        console.error("Ошибка при загрузке заказов:", error);
-        ordersList.innerHTML = "<p>Ошибка при загрузке данных.</p>";
-        return;
-    }
-    if (!data || data.length === 0) {
-        ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
-        return;
-    }
-
-    ordersList.innerHTML = data.map(order => `
-        <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
-            <div><strong>Название:</strong> ${order.title}</div>
-            <div><strong>Пакетов:</strong> ${order.packages}</div>
-            <div><strong>Цена:</strong> ${parseFloat(order.price)}</div>
-            <div class="actions">
-                <button class="edit-btn">Редактировать</button>
-                <button class="delete-btn">Удалить</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-
-
-
-   document.getElementById('orderForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const date = form.date.value;
-    const title = form.title.value;
-    const packages = parseInt(form.packages.value, 10);
-    const price = parseFloat(form.price.value);
-
-    // Получаем ID текущего пользователя
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      alert('Вы не авторизованы!');
-      return;
-    }
-
-    const { error } = await supabase.from('orders').insert([
-      { date, title, packages, price, user_id: user.id } // Добавляем user_id
-    ]);
-
-    if (error) {
-        alert('Ошибка сохранения!');
-        console.error(error);
-    } else {
-        alert('Заказ сохранен!');
-        form.reset();
-    }
-});
-
-async function deleteOrder(id) {
-    if (!confirm("Вы уверены, что хотите удалить этот заказ?")) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        alert('Вы не авторизованы!');
-        return;
-    }
-    const { error } = await supabase.from("orders").delete().eq("id", id).eq('user_id', user.id);
-    if (error) {
-        console.error("Ошибка при удалении заказа:", error);
-        alert("Не удалось удалить заказ.");
-        return;
-    }
-    alert("Заказ успешно удален!");
-    loadOrders();
-}
-
-async function editOrder(id, title, packages, price) {
-    const newTitle = prompt("Название заказа:", title);
-    if (newTitle === null) return;
-    const newPackages = prompt("Количество пакетов:", packages);
-    if (newPackages === null) return;
-    const newPrice = prompt("Цена за пакет:", price);
-    if (newPrice === null) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        alert('Вы не авторизованы!');
-        return;
-    }
-
-    const { error } = await supabase.from("orders").update({
-        title: newTitle,
-        packages: parseInt(newPackages, 10),
-        price: parseFloat(newPrice)
-    }).eq("id", id).eq('user_id', user.id);
-
-    if (error) {
-        console.error("Ошибка при обновлении заказа:", error);
-        alert("Не удалось обновить заказ.");
-        return;
-    }
-    alert("Заказ успешно обновлен!");
-    loadOrders();
-}
-
-   async function getReport() {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    const { data: { user } } = await supabase.auth.getUser(); // Get current user's ID
-    if (!user) {
-        alert('Вы не авторизованы!');
-        return;
-    }
-
-    let query = supabase.from('orders').select('*').eq('user_id', user.id); // Filter by user ID
-    if (startDate && endDate) {
-        query = query.gte('date', startDate).lte('date', endDate);
-    }
-    const { data, error } = await query;
-    const reportResult = document.getElementById('reportResult');
-    if (error) {
-        reportResult.innerHTML = '<p>Ошибка при получении отчета.</p>';
-        console.error("Ошибка при получении отчёта:", error);
-        return;
-    }
-    if (!data || data.length === 0) {
-        reportResult.innerHTML = '<p>Нет данных за выбранный период.</p>';
-        return;
-    }
-
-    let total = 0;
-    let html = '<h3>Суммы по заказам:</h3>';
-    data.forEach(order => {
-        const sum = order.packages * order.price;
-        total += sum;
-        const dateParts = order.date.split('-');
-        const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
-        html += `<div class="report-item"><span style="color: #999;">${formattedDate} </span>${order.title}<span style="color: #999;"> — </span>${order.packages}<span style="color: #999;"> × </span>${parseFloat(order.price)}<span style="color: #999;"> = </span>${parseFloat(sum)}</div><hr class="separator">`;
-    });
-    html += `<p style="font-size: 20px"><b>Итого: ${parseFloat(total)} <span style="color: #999;"> сом </span> </b></p>`;
-    reportResult.innerHTML = html;
-}
-
-// **НОВЫЕ ФУНКЦИИ ДЛЯ СТРАНИЦЫ ПРОФИЛЯ**
-async function loadProfileData() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        alert('Вы не авторизованы!');
-        return;
-    }
-    
-    // Получение логина и пароля
-    const username = user.email.replace('@localapp.com', '');
-    const password = localStorage.getItem(`password-${username}`); // Пароль хранится локально
-
-    document.getElementById('profile-username').textContent = username;
-    document.getElementById('profile-password-display').textContent = password;
-
-    // Расчет общей суммы заработка
-    const { data: orders, error } = await supabase.from('orders').select('packages, price').eq('user_id', user.id);
-    if (error) {
-        console.error('Ошибка при расчете заработка:', error);
-        document.getElementById('total-earned').textContent = 'Ошибка';
-        return;
-    }
-
-    const totalEarned = orders.reduce((sum, order) => sum + (order.packages * order.price), 0);
-    document.getElementById('total-earned').textContent = parseFloat(totalEarned).toFixed(2);
-}
-
-// **НОВАЯ ФУНКЦИЯ ДЛЯ ВЫХОДА**
-async function logout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error('Ошибка выхода:', error);
-    } else {
-        showAuth();
-    }
-}
-
-// --- 4. Event Listeners ---
+    // --- 4. Event Listeners ---
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const username = e.target.username.value;
@@ -500,7 +476,7 @@ async function logout() {
         e.preventDefault();
         const username = e.target.username.value;
         const password = e.target.password.value;
-        localStorage.setItem(`password-${username}`, password); // **Сохраняем пароль локально для отображения в профиле**
+        localStorage.setItem(`password-${username}`, password);
         loginUser(username, password);
     });
 
@@ -517,7 +493,6 @@ async function logout() {
         }
     });
 
-    // **НОВЫЕ ОБРАБОТЧИКИ ДЛЯ СТРАНИЦЫ ПРОФИЛЯ**
     document.getElementById('toggle-password-btn').addEventListener('click', () => {
         const passwordDisplay = document.getElementById('profile-password-display');
         const passwordDots = document.getElementById('profile-password-dots');
@@ -537,6 +512,11 @@ async function logout() {
         logout();
     });
 
+    // **Запускаем проверку сессии и инициализацию полей ввода при загрузке страницы**
+    document.addEventListener('DOMContentLoaded', () => {
+        checkSession();
+        initializeDateInputs();
+    });
 </script>
 </body>
 </html>
