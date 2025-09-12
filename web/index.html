@@ -90,14 +90,22 @@
                     </section>
                     <section id="orders-list" class="page">
                         <h2 class="title">Список заказов</h2>
-                        <input type="date" id="filterDate" class="has-placeholder" data-placeholder="Дата заказа">
-                        <button onclick="loadOrders()">Показать</button>
+                        <div class="input-group">
+                            <label for="filter-date">Дата заказа</label>
+                            <input type="date" id="filter-date">
+                        </div>
+                        <button id="showOrdersBtn" onclick="loadOrders()">Показать</button>
                         <div id="ordersContent"></div>
                     </section>
                     <section id="report" class="page">
                         <h2 class="title">Отчёт</h2>
-                        <input type="date" id="startDate" class="has-placeholder" data-placeholder="Начало периода">
-                        <input type="date" id="endDate" class="has-placeholder" data-placeholder="Конец периода">
+                         <div class="input-group">
+                                <label for="start-date">Начало периода</label>
+                                <input type="date" id="start-date">
+                        <div class="input-group">
+                                <label for="end-date">Конец периода</label>
+                                <input type="date" id="end-date">
+                            </div>
                         <div class="button-container">
                             <button onclick="getReport()">Сформировать отчёт</button>
                         </div>
@@ -145,25 +153,19 @@
     const profileThemeToggle = document.getElementById('profile-theme-toggle');
 
     // **Новая функция для инициализации инпутов даты**
-    function initializeDateInputs() {
-        document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
-            const checkValue = () => {
-                // Если у поля есть значение, удаляем класс для плейсхолдера
-                if (input.value) {
-                    input.classList.remove('has-placeholder');
-                } else {
-                    // Иначе добавляем класс, чтобы плейсхолдер был виден
-                    input.classList.add('has-placeholder');
-                }
-            };
-
-            // Вызываем проверку при загрузке страницы (или при переключении)
-            checkValue();
-
-            // Добавляем слушатель, чтобы проверять изменения
-            input.addEventListener('change', checkValue);
-        });
-    }
+ function initializeDateInputs() {
+    document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
+        const checkValue = () => {
+            if (input.value) {
+                input.classList.remove('has-placeholder');
+            } else {
+                input.classList.add('has-placeholder');
+            }
+        };
+        checkValue();
+        input.addEventListener('change', checkValue);
+    });
+}
 
 
     function applyTheme(isDark) {
@@ -202,29 +204,20 @@
         themeToggle.checked = isDark;
     });
 
-    function showPage(pageId) {
-        // Скрываем все страницы
-        document.querySelectorAll('#main-app .page').forEach(page => {
-            page.style.display = 'none';
-        });
-
-        // Показываем нужную страницу
-        document.getElementById(pageId).style.display = 'block';
-
-        // Обновляем активную вкладку в панели навигации
-        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-        const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
-        if (activeTab) activeTab.classList.add('active');
-
-        // Если страница профиля, загружаем данные
-        if (pageId === 'profile') {
-            loadProfileData();
-        }
-
-        // **Самое главное: вызываем инициализацию полей ввода даты**
-        // Это гарантирует, что плейсхолдеры будут работать на всех страницах
-        initializeDateInputs();
+   function showPage(pageId) {
+    document.querySelectorAll('#main-app .page').forEach(page => {
+        page.style.display = 'none';
+    });
+    document.getElementById(pageId).style.display = 'block';
+    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
+    if (activeTab) activeTab.classList.add('active');
+    if (pageId === 'profile') {
+        loadProfileData();
     }
+    // **Вызываем функцию инициализации полей после показа страницы**
+    initializeDateInputs();
+}
 
     function showAuth() {
         document.getElementById('auth').style.display = 'block';
