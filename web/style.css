@@ -238,34 +238,32 @@ form {
 }
 
 .input-container {
-    width: 100%;
-    /* Используем padding для создания внутреннего отступа */
-    padding: 12px 16px; 
+    padding: 0;
     margin-bottom: 10px;
+    border: none; /* Убираем бордер, чтобы не было дублирования */
+    background-color: transparent;
     box-sizing: border-box;
-    /* Убираем border, если он не нужен для дизайна */
-    border: 1px solid var(--input-border);
-    border-radius: 10px;
-    /* Устанавливаем фон как у других инпутов */
-    background-color: var(--input-bg);
 }
 
+input[type="text"],
 input[type="date"] {
-    /* Удаляем padding, так как он теперь у контейнера */
-    padding: 0;
-    /* Убираем border */
-    border: none;
-    /* Убеждаемся, что фон прозрачный, чтобы было видно фон контейнера */
-    background-color: transparent; 
+    padding: 12px 16px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    border-radius: 10px;
     width: 100%;
+    box-sizing: border-box;
     font-size: 1rem;
     color: var(--text-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    
+    /* This is the key to preventing the "jump" on iOS */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-/* Также уберем лишние стили с input[type="date"] */
-input[type="date"] {
-    max-width: none;
-}
+
 
 
 input[type="text"],
