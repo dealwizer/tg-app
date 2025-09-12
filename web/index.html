@@ -69,8 +69,9 @@
 <section id="order" class="page active">
     <h2 class="title">Новый заказ</h2>
     <form id="orderForm">
-        <div class="input-container">
-            <input type="date" name="date" class="has-placeholder" data-placeholder="Дата заказа" required>
+        <div class="input-group">
+            <label for="order-date">Дата заказа</label>
+            <input type="date" id="order-date" name="date" required>
         </div>
         <input type="text" name="title" placeholder="Название заказа" required>
         <input type="number" name="packages" placeholder="Количество пакетов" required>
@@ -78,31 +79,52 @@
         <button type="submit">Сохранить</button>
     </form>
             </section>
-                    <section id="order" class="page active">
-                        <h2 class="title">Новый заказ</h2>
-                        <form id="orderForm">
-                            <input type="date" name="date" class="has-placeholder" data-placeholder="Дата заказа" required>
-                            <input type="text" name="title" placeholder="Название заказа" required>
-                            <input type="number" name="packages" placeholder="Количество пакетов" required>
-                            <input type="number" name="price" value="1" step="0.01" placeholder="Цена за пакет">
-                            <button type="submit">Сохранить</button>
-                        </form>
-                    </section>
-                    <section id="orders-list" class="page">
-                        <h2 class="title">Список заказов</h2>
-                        <input type="date" id="filterDate" class="has-placeholder" data-placeholder="Дата заказа">
-                        <button id="showOrdersBtn" onclick="loadOrders()">Показать</button>
-                        <div id="ordersContent"></div>
-                    </section>
-                    <section id="report" class="page">
-                        <h2 class="title">Отчёт</h2>
-                        <input type="date" id="startDate" class="has-placeholder" data-placeholder="Начало периода">
-                        <input type="date" id="endDate" class="has-placeholder" data-placeholder="Конец периода">
-                        <div class="button-container">
-                            <button onclick="getReport()">Сформировать отчёт</button>
-                        </div>
-                        <div id="reportResult"></div>
-                    </section>
+                   <section id="order" class="page active">
+    <h2 class="title">Новый заказ</h2>
+    <form id="orderForm">
+        <div class="input-group">
+            <label for="order-date">Дата заказа</label>
+            <input type="date" id="order-date" name="date" required>
+        </div>
+        <div class="input-group">
+            <label for="order-title">Название заказа</label>
+            <input type="text" id="order-title" name="title" required>
+        </div>
+        <div class="input-group">
+            <label for="order-packages">Количество пакетов</label>
+            <input type="number" id="order-packages" name="packages" required>
+        </div>
+        <div class="input-group">
+            <label for="order-price">Цена за пакет</label>
+            <input type="number" id="order-price" name="price" value="1" step="0.01">
+        </div>
+        <button type="submit">Сохранить</button>
+    </form>
+</section>
+<section id="orders-list" class="page">
+    <h2 class="title">Список заказов</h2>
+    <div class="input-group">
+        <label for="filter-date">Дата заказа</label>
+        <input type="date" id="filter-date">
+    </div>
+    <button onclick="loadOrders()">Показать</button>
+    <div id="ordersContent"></div>
+</section>
+<section id="report" class="page">
+    <h2 class="title">Отчёт</h2>
+    <div class="input-group">
+        <label for="start-date">Начало периода</label>
+        <input type="date" id="start-date">
+    </div>
+    <div class="input-group">
+        <label for="end-date">Конец периода</label>
+        <input type="date" id="end-date">
+    </div>
+    <div class="button-container">
+        <button onclick="getReport()">Сформировать отчёт</button>
+    </div>
+    <div id="reportResult"></div>
+</section>
                 <section id="profile" class="page">
                     <h2 class="title">Профиль пользователя</h2>
                     <div class="profile-info">
@@ -144,20 +166,7 @@
     const themeToggle = document.getElementById('theme-toggle');
     const profileThemeToggle = document.getElementById('profile-theme-toggle');
 
-    // **Новая функция для инициализации инпутов даты**
- function initializeDateInputs() {
-    document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
-        const checkValue = () => {
-            if (input.value) {
-                input.classList.remove('has-placeholder');
-            } else {
-                input.classList.add('has-placeholder');
-            }
-        };
-        checkValue();
-        input.addEventListener('change', checkValue);
-    });
-}
+ 
 
 
     function applyTheme(isDark) {
@@ -197,18 +206,18 @@
     });
 
    function showPage(pageId) {
-    document.querySelectorAll('#main-app .page').forEach(page => {
-        page.style.display = 'none';
-    });
-    document.getElementById(pageId).style.display = 'block';
-    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-    const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
-    if (activeTab) activeTab.classList.add('active');
-    if (pageId === 'profile') {
-        loadProfileData();
-    }
-    // **Вызываем функцию инициализации полей после показа страницы**
-    initializeDateInputs();
+        document.querySelectorAll('#main-app .page').forEach(page => {
+            page.style.display = 'none';
+        });
+        document.getElementById(pageId).style.display = 'block';
+
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+        const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
+        if (activeTab) activeTab.classList.add('active');
+
+        if (pageId === 'profile') {
+            loadProfileData();
+        }
 }
 
     function showAuth() {
@@ -280,7 +289,7 @@
 
     // --- 3. Data Handling Functions ---
     async function loadOrders() {
-        const date = document.getElementById("filterDate").value;
+        const date = document.getElementById("filter-date").value;
         if (!date) {
             alert("Выбери дату!");
             return;
@@ -395,8 +404,8 @@
     }
 
     async function getReport() {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+const startDate = document.getElementById('start-date').value;
+const endDate = document.getElementById('end-date').value;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         alert('Вы не авторизованы!');
@@ -523,7 +532,7 @@
     // **Запускаем проверку сессии и инициализацию полей ввода при загрузке страницы**
     document.addEventListener('DOMContentLoaded', () => {
         checkSession();
-        initializeDateInputs();
+
     });
 </script>
 </body>
