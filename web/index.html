@@ -70,9 +70,7 @@
     <h2 class="title">Новый заказ</h2>
     <form id="orderForm">
         <div class="input-container">
-            <input type="text" name="date" placeholder="Дата заказа" required
-                onfocus="(this.type='date')"
-                onblur="if(!this.value){this.type='text'}">
+            <input type="date" name="date" class="has-placeholder" data-placeholder="Дата заказа" required>
         </div>
         <input type="text" name="title" placeholder="Название заказа" required>
         <input type="number" name="packages" placeholder="Количество пакетов" required>
@@ -83,9 +81,7 @@
             <section id="orders-list" class="page">
                 <h2 class="title">Список заказов</h2>
                 <div class="input-container">
-                    <input type="text" id="filterDate" placeholder="Дата заказа"
-                        onfocus="(this.type='date')"
-                        onblur="if(!this.value){this.type='text'}">
+                    <input type="date" id="filterDate" class="has-placeholder" data-placeholder="Дата заказа">
                 </div>
                 <button onclick="loadOrders()">Показать</button>
                 <div id="ordersContent"></div>
@@ -93,14 +89,10 @@
             <section id="report" class="page">
                 <h2 class="title">Отчёт</h2>
                 <div class="input-container">
-                    <input type="text" id="startDate" placeholder="Начало периода"
-                        onfocus="(this.type='date')"
-                        onblur="if(!this.value){this.type='text'}">
+                     <input type="date" id="startDate" class="has-placeholder" data-placeholder="Начало периода">
                 </div>
                 <div class="input-container">
-                    <input type="text" id="endDate" placeholder="Конец периода"
-                        onfocus="(this.type='date')"
-                        onblur="if(!this.value){this.type='text'}">
+                     <input type="date" id="endDate" class="has-placeholder" data-placeholder="Конец периода">
                 </div>
                 <div class="button-container">
                     <button onclick="getReport()">Сформировать отчёт</button>
@@ -144,6 +136,23 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[type="date"].has-placeholder').forEach(input => {
+        const checkValue = () => {
+            if (input.value) {
+                input.classList.remove('has-placeholder');
+            } else {
+                input.classList.add('has-placeholder');
+            }
+        };
+
+        // Проверяем при загрузке страницы
+        checkValue();
+
+        // Проверяем при изменении значения
+        input.addEventListener('change', checkValue);
+    });
+});
     // --- 1. Page and Theme Management ---
     const themeToggle = document.getElementById('theme-toggle');
     // **Добавлен новый переключатель для страницы профиля**
