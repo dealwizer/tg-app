@@ -61,6 +61,7 @@ input[type="date"] {
     appearance: none;
 }
 
+
 /* Стилизация стрелок в инпуте типа date */
 input[type="date"]::-webkit-calendar-picker-indicator {
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="rgb(153, 153, 153)" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') no-repeat;
@@ -283,6 +284,31 @@ input::placeholder {
     color: var(--placeholder-color);
     opacity: 1; /* Чтобы нативный плейсхолдер не был блеклым */
 }
+
+select {
+    padding: 12px 16px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    width: 100%; /* <-- Самое важное изменение */
+    box-sizing: border-box;
+    font-size: 1rem;
+    min-height: 48px;
+    color: var(--placeholder-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+
+select:focus {
+    outline: none;
+    background-color: var(--input-bg);
+    border-color: var(--primary-color);
+}
+
 
 input:focus {
     outline: none;

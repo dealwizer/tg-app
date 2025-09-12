@@ -47,7 +47,7 @@
         </section>
 
         <div id="main-app" class="page" style="display: none;">
-            <div class="tab-bar">
+             <div class="tab-bar">
                 <button onclick="showPage('order')" class="tab-item active" data-page-id="order">
                     <svg class="icon-outline" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.5" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="var(--text-color)" stroke-width="1.5"/><path d="M15 12H12M12 12H9M12 12V9M12 12V15" stroke="var(--text-color)" stroke-width="1.5" stroke-linecap="round"/></svg>
                     <svg class="icon-bold" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity="0.5"/><path  d="M12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25z"/></svg>
@@ -66,9 +66,9 @@
                 </button>
             </div>
             <main class="content">
-<section id="order" class="page active">
-    <h2 class="title">Новый заказ</h2>
-    <form id="orderForm">
+                <section id="order" class="page active">
+                    <h2 class="title">Новый заказ</h2>
+                    <form id="orderForm">
         <div style="margin-bottom: 0px;" class="input-group">
             <label for="order-date">Дата заказа</label>
             <input type="date" id="order-date" name="date" required>
@@ -78,81 +78,69 @@
         <input type="number" name="price" value="1" step="0.01" placeholder="Цена за пакет">
         <button type="submit">Сохранить</button>
     </form>
-            </section>
-                   <section id="order" class="page active">
-    <h2 class="title">Новый заказ</h2>
-    <form id="orderForm">
+                </section>
+                <section id="orders-list" class="page">
+                    <h2 class="title">Список заказов</h2>
+                    <div class="input-group">
+                        <label for="filter-date">Дата заказа</label>
+                        <input type="date" id="filter-date">
+                    </div>
+                    <button onclick="loadOrders()">Показать</button>
+                    <div id="ordersContent"></div>
+                </section>
+                <section id="report" class="page">
+                    <h2 class="title">Отчёт</h2>
+                    <div id="manager-controls" style="display: none;">
+                        <div class="input-group">
+                            <label for="employee-select">Выбрать сотрудника</label>
+                            <select id="employee-select"></select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="start-date">Начало периода</label>
+                        <input type="date" id="start-date">
+                    </div>
+                    <div class="input-group">
+                        <label for="end-date">Конец периода</label>
+                        <input type="date" id="end-date">
+                    </div>
+                    <div class="button-container">
+                        <button onclick="getReport()">Сформировать отчёт</button>
+                    </div>
+                    <div id="reportResult"></div>
+                </section>
+               <section id="profile" class="page">
+    <h2 class="title">Профиль</h2>
+    <div class="profile-info">
+        <p><strong>Имя:</strong> <span id="profile-full-name"></span></p>
         <div class="input-group">
-            <label for="order-date">Дата заказа</label>
-            <input type="date" id="order-date" name="date" required>
+            <label for="change-name">Изменить имя</label>
+            <input type="text" id="change-name" placeholder="Новое имя">
+            <button id="update-name-btn">Сохранить имя</button>
         </div>
-        <div class="input-group">
-            <label for="order-title">Название заказа</label>
-            <input type="text" id="order-title" name="title" required>
-        </div>
-        <div class="input-group">
-            <label for="order-packages">Количество пакетов</label>
-            <input type="number" id="order-packages" name="packages" required>
-        </div>
-        <div class="input-group">
-            <label for="order-price">Цена за пакет</label>
-            <input type="number" id="order-price" name="price" value="1" step="0.01">
-        </div>
-        <button type="submit">Сохранить</button>
-    </form>
-</section>
-<section id="orders-list" class="page">
-    <h2 class="title">Список заказов</h2>
-    <div class="input-group">
-        <label for="filter-date">Дата заказа</label>
-        <input type="date" id="filter-date">
-    </div>
-    <button onclick="loadOrders()">Показать</button>
-    <div id="ordersContent"></div>
-</section>
-<section id="report" class="page">
-    <h2 class="title">Отчёт</h2>
-    <div class="input-group">
-        <label for="start-date">Начало периода</label>
-        <input type="date" id="start-date">
-    </div>
-    <div class="input-group">
-        <label for="end-date">Конец периода</label>
-        <input type="date" id="end-date">
-    </div>
-    <div class="button-container">
-        <button onclick="getReport()">Сформировать отчёт</button>
-    </div>
-    <div id="reportResult"></div>
-</section>
-                <section id="profile" class="page">
-                    <h2 class="title">Профиль пользователя</h2>
-                    <div class="profile-info">
-                        <p><strong>Логин:</strong> <div  class="report-item"><span id="profile-username"></span></div></p>
-                        <p>
+        <hr class="separator">
+        <p><strong>Логин:</strong> <div  class="report-item"> <span id="profile-login"></span></p> </div>
+        <p>
+     <p>
                             <strong>Пароль:</strong>
                             <div  class="report-item">
                             <span id="profile-password-display" style="display: none;"></span>
                             <span id="profile-password-dots">••••••••</span>
                             </div>
-                            <button id="toggle-password-btn">Показать</button>
                             <hr class="separator">
                         </p>
-                        <p><strong>Всего заработано:</strong> <span id="total-earned">0</span> сом</p>
-                    </div>
-                    <hr class="separator">
-                    <div class="settings-block">
-                        <h3>Настройки</h3>
-                        <div class="theme-switch-container">
-                            <span>Темная тема:</span>
-                            <label class="switch">
-                                <input type="checkbox" id="profile-theme-toggle">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <button class="logout-btn">Выйти</button>
-                </section>
+        <div style="margin-bottom: -20px" class="theme-switch-container">
+            <span>Тёмная тема</span>
+            <label class="switch">
+                <input type="checkbox" id="profile-theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <hr class="separator">
+        <p><strong>Всего заработано:</strong> <span id="total-earned"></span> <span style="color: #999;"> сом </span></p>
+    </div>
+    <button id="logout-btn">Выход</button>
+</section>
             </main>
         </div>
     </div>
@@ -162,57 +150,124 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZ2xqbnhsYWVoZmpsaXdpZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzk2NzksImV4cCI6MjA3MjkxNTY3OX0.4Ys9NduopSkGEspG9L3pyOegdDTWqlb0SRfk8wCoJYQ';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    //виброотклик
-    // Функция для виброотклика
-function vibrate() {
-    // Проверяем, поддерживает ли браузер API вибрации
-    if ("vibrate" in navigator) {
-        // Вибрируем 100 миллисекунд
-        navigator.vibrate(100); 
-    }
-}
+    // --- Event Listeners ---
+// Слушатель для кнопки показать/скрыть пароль
 
-// Пример: добавление виброотклика к кнопке "Сохранить"
-document.getElementById('orderForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // Вызываем виброотклик
-    vibrate();
 
-    const form = e.target;
-    // ... остальной код сохранения заказа
-});
+        const themeToggle = document.getElementById('theme-toggle');
+        const profileThemeToggle = document.getElementById('profile-theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('change', (e) => {
+                const isDark = e.target.checked;
+                applyTheme(isDark);
+                saveThemePreference(isDark);
+                if (profileThemeToggle) profileThemeToggle.checked = isDark;
+            });
+        }
+        if (profileThemeToggle) {
+            profileThemeToggle.addEventListener('change', (e) => {
+                const isDark = e.target.checked;
+                applyTheme(isDark);
+                saveThemePreference(isDark);
+                if (themeToggle) themeToggle.checked = isDark;
+            });
+        }
 
-// Пример: добавление виброотклика к кнопкам "Редактировать" и "Удалить"
-document.getElementById('ordersContent').addEventListener('click', (event) => {
-    const target = event.target;
-    const orderItem = target.closest('.order-item');
-    if (!orderItem) return;
+        // Authentication form submissions
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            loginUser(username, password);
+        });
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            registerUser(username, password);
+        });
 
-    if (target.classList.contains('edit-btn') || target.classList.contains('delete-btn')) {
-        // Вызываем виброотклик для кнопок редактирования/удаления
-        vibrate();
-    }
-    
-    // ... остальной код для редактирования и удаления
-});
+        // Order form submission
+        document.getElementById('orderForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const date = form.elements['order-date'].value;
+            const title = form.elements['order-title'].value;
+            const packages = parseInt(form.elements['order-packages'].value, 10);
+            const price = parseFloat(form.elements['order-price'].value);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                alert('Вы не авторизованы!');
+                return;
+            }
+            const { error } = await supabase.from('orders').insert([
+                { date, title, packages, price, user_id: user.id }
+            ]);
+            if (error) {
+                alert('Ошибка сохранения!');
+                console.error(error);
+            } else {
+                alert('Заказ сохранен!');
+                form.reset();
+            }
+        });
 
-// Пример: добавление виброотклика к кнопке "Показать"
-const showOrdersBtn = document.getElementById('showOrdersBtn');
-if (showOrdersBtn) {
-    showOrdersBtn.addEventListener('click', () => {
-        vibrate();
-        loadOrders();
+        // Update profile name
+        document.getElementById('update-name-btn').addEventListener('click', async () => {
+            const newName = document.getElementById('change-name').value;
+            if (!newName) {
+                alert('Пожалуйста, введите новое имя.');
+                return;
+            }
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                alert('Вы не авторизованы.');
+                return;
+            }
+            const { error } = await supabase
+                .from('users')
+                .update({ full_name: newName })
+                .eq('id', user.id);
+            if (error) {
+                console.error('Ошибка при обновлении имени:', error);
+                alert('Не удалось обновить имя.');
+            } else {
+                alert('Имя успешно обновлено!');
+                loadProfileData();
+                document.getElementById('change-name').value = '';
+            }
+        });
+
+        // Orders list event delegation for edit/delete buttons
+        document.getElementById('ordersContent').addEventListener('click', (event) => {
+            const target = event.target;
+            const orderItem = target.closest('.order-item');
+            if (!orderItem) return;
+
+            const id = orderItem.dataset.id;
+            const title = orderItem.dataset.title;
+            const packages = orderItem.dataset.packages;
+            const price = orderItem.dataset.price;
+
+            if (target.classList.contains('edit-btn')) {
+                editOrder(id, title, packages, price);
+            } else if (target.classList.contains('delete-btn')) {
+                deleteOrder(id);
+            }
+        });
+
+   
+
+    document.querySelector('.logout-btn').addEventListener('click', () => {
+        logout();
     });
-}
 
-    // --- 1. Page and Theme Management ---
-    const themeToggle = document.getElementById('theme-toggle');
-    const profileThemeToggle = document.getElementById('profile-theme-toggle');
+    // **Запускаем проверку сессии и инициализацию полей ввода при загрузке страницы**
+    document.addEventListener('DOMContentLoaded', () => {
+        checkSession();
 
- 
-
-
+    });
+    // --- Functions ---
     function applyTheme(isDark) {
         document.body.classList.toggle('dark-theme', isDark);
     }
@@ -228,41 +283,31 @@ if (showOrdersBtn) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             const { data, error } = await supabase.from('users').select('theme').eq('id', user.id).single();
-            const isDark = (data && data.theme === 'dark');
-            applyTheme(isDark);
-            themeToggle.checked = isDark;
-            profileThemeToggle.checked = isDark;
+            if (data) {
+                const isDark = (data.theme === 'dark');
+                applyTheme(isDark);
+                const themeToggle = document.getElementById('theme-toggle');
+                const profileThemeToggle = document.getElementById('profile-theme-toggle');
+                if (themeToggle) themeToggle.checked = isDark;
+                if (profileThemeToggle) profileThemeToggle.checked = isDark;
+            }
         }
     }
 
-    themeToggle.addEventListener('change', (e) => {
-        const isDark = e.target.checked;
-        applyTheme(isDark);
-        saveThemePreference(isDark);
-        profileThemeToggle.checked = isDark;
-    });
-
-    profileThemeToggle.addEventListener('change', (e) => {
-        const isDark = e.target.checked;
-        applyTheme(isDark);
-        saveThemePreference(isDark);
-        themeToggle.checked = isDark;
-    });
-
-   function showPage(pageId) {
+    function showPage(pageId) {
         document.querySelectorAll('#main-app .page').forEach(page => {
             page.style.display = 'none';
         });
         document.getElementById(pageId).style.display = 'block';
-
         document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
         const activeTab = document.querySelector(`.tab-item[data-page-id="${pageId}"]`);
         if (activeTab) activeTab.classList.add('active');
-
         if (pageId === 'profile') {
             loadProfileData();
+        } else if (pageId === 'report') {
+            checkAndLoadManagerControls();
         }
-}
+    }
 
     function showAuth() {
         document.getElementById('auth').style.display = 'block';
@@ -279,11 +324,32 @@ if (showOrdersBtn) {
         }
     }
 
-    function showApp() {
+    async function showApp() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            showAuth();
+            return;
+        }
+        const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
+        const managerControls = document.getElementById('manager-controls');
+        if (profile && profile.role === 'manager') {
+            if (managerControls) managerControls.style.display = 'block';
+        } else {
+            if (managerControls) managerControls.style.display = 'none';
+        }
         document.getElementById('auth').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
         showPage('order');
         loadThemePreference();
+    }
+
+    async function checkAndLoadManagerControls() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
+        if (profile && profile.role === 'manager') {
+            await loadEmployeesForManager();
+        }
     }
 
     function showLogin() {
@@ -296,17 +362,16 @@ if (showOrdersBtn) {
         document.getElementById('register-form-container').style.display = 'block';
     }
 
-    // --- 2. Authentication Logic ---
     async function registerUser(username, password) {
         document.getElementById('status').textContent = 'Регистрация...';
         const email = username + '@localapp.com';
         const { data, error } = await supabase.auth.signUp({ email, password });
-
         if (error) {
             document.getElementById('status').textContent = 'Ошибка: ' + error.message;
             console.error('Registration error:', error);
         } else {
-            const { error: profileError } = await supabase.from('users').insert({ id: data.user.id, username: username, theme: 'light' });
+            // Исправлено: используем 'full_name' вместо 'username'
+            const { error: profileError } = await supabase.from('users').insert({ id: data.user.id, full_name: username, theme: 'light' });
             if (profileError) {
                 console.error('Profile creation error:', profileError);
                 document.getElementById('status').textContent = 'Ошибка создания профиля: ' + profileError.message;
@@ -320,8 +385,7 @@ if (showOrdersBtn) {
     async function loginUser(username, password) {
         document.getElementById('status').textContent = 'Вход...';
         const email = username + '@localapp.com';
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
             document.getElementById('status').textContent = 'Ошибка: ' + error.message;
             console.error('Login error:', error);
@@ -331,20 +395,26 @@ if (showOrdersBtn) {
         }
     }
 
-    // --- 3. Data Handling Functions ---
+    async function logout() {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error('Ошибка выхода:', error);
+        } else {
+            showAuth();
+        }
+    }
+
     async function loadOrders() {
         const date = document.getElementById("filter-date").value;
         if (!date) {
             alert("Выбери дату!");
             return;
         }
-
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             alert('Вы не авторизованы!');
             return;
         }
-
         const { data, error } = await supabase.from("orders").select("*").eq("date", date).eq('user_id', user.id);
         const ordersList = document.getElementById("ordersContent");
         if (error) {
@@ -356,50 +426,22 @@ if (showOrdersBtn) {
             ordersList.innerHTML = "<p>Нет заказов за выбранную дату.</p>";
             return;
         }
-
         ordersList.innerHTML = data.map(order => `
-        <div class="orders-list">
-          <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
-    <div class="info">
-        <div><strong>Название:</strong> ${order.title}</div>
-        <div><strong>Пакетов:</strong> ${order.packages}</div>
-        <div><strong>Цена:</strong> ${parseFloat(order.price)}</div>
-    </div>
-    <div class="actions">
-        <button class="edit-btn">Редактировать</button>
-        <button class="delete-btn">Удалить</button>
-    </div>
-</div>
-</div>
+            <div class="orders-list">
+                <div class="order-item" data-id="${order.id}" data-title="${order.title}" data-packages="${order.packages}" data-price="${order.price}">
+                    <div class="info">
+                        <div><strong>Название:</strong> ${order.title}</div>
+                        <div><strong>Пакетов:</strong> ${order.packages}</div>
+                        <div><strong>Цена:</strong> ${parseFloat(order.price)}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="edit-btn">Редактировать</button>
+                        <button class="delete-btn">Удалить</button>
+                    </div>
+                </div>
+            </div>
         `).join('');
     }
-
-    document.getElementById('orderForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const date = form.date.value;
-        const title = form.title.value;
-        const packages = parseInt(form.packages.value, 10);
-        const price = parseFloat(form.price.value);
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            alert('Вы не авторизованы!');
-            return;
-        }
-
-        const { error } = await supabase.from('orders').insert([
-            { date, title, packages, price, user_id: user.id }
-        ]);
-
-        if (error) {
-            alert('Ошибка сохранения!');
-            console.error(error);
-        } else {
-            alert('Заказ сохранен!');
-            form.reset();
-        }
-    });
 
     async function deleteOrder(id) {
         if (!confirm("Вы уверены, что хотите удалить этот заказ?")) return;
@@ -425,19 +467,16 @@ if (showOrdersBtn) {
         if (newPackages === null) return;
         const newPrice = prompt("Цена за пакет:", price);
         if (newPrice === null) return;
-
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             alert('Вы не авторизованы!');
             return;
         }
-
         const { error } = await supabase.from("orders").update({
             title: newTitle,
             packages: parseInt(newPackages, 10),
             price: parseFloat(newPrice)
         }).eq("id", id).eq('user_id', user.id);
-
         if (error) {
             console.error("Ошибка при обновлении заказа:", error);
             alert("Не удалось обновить заказ.");
@@ -448,136 +487,114 @@ if (showOrdersBtn) {
     }
 
     async function getReport() {
-const startDate = document.getElementById('start-date').value;
-const endDate = document.getElementById('end-date').value;
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const employeeSelect = document.getElementById('employee-select');
+        const employeeId = employeeSelect ? employeeSelect.value : null;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            alert('Вы не авторизованы!');
+            return;
+        }
+        const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
+        const userRole = profile.role;
+        let query = supabase.from('orders').select('*');
+        if (userRole === 'manager' && employeeId) {
+            query = query.eq('user_id', employeeId);
+        } else if (userRole !== 'manager') {
+            query = query.eq('user_id', user.id);
+        }
+        if (startDate && endDate) {
+            query = query.gte('date', startDate).lte('date', endDate);
+        }
+        const { data, error } = await query;
+        const reportResult = document.getElementById('reportResult');
+        if (error) {
+            reportResult.innerHTML = '<p>Ошибка при получении отчета.</p>';
+            console.error("Ошибка при получении отчёта:", error);
+            return;
+        }
+        if (!data || data.length === 0) {
+            reportResult.innerHTML = '<p>Нет данных за выбранный период.</p>';
+            return;
+        }
+        let total = 0;
+        let html = '<h3>Суммы по заказам:</h3>';
+        data.forEach(order => {
+            const sum = order.packages * order.price;
+            total += sum;
+            const dateParts = order.date.split('-');
+            const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
+            html += `<div class="report-item"><span style="color: #999;">${formattedDate} </span>${order.title}<span style="color: #999;"> — </span>${order.packages}<span style="color: #999;"> × </span>${parseFloat(order.price)}<span style="color: #999;"> = </span>${parseFloat(sum)}</div><hr class="separator">`;
+        });
+        const totalRounded = Math.round(total);
+        html += `<p style="font-size: 20px"><b>Итого: ${totalRounded} <span style="color: #999;"> сом </span> </b></p>`;
+        reportResult.innerHTML = html;
+    }
+
+    async function loadEmployeesForManager() {
+        const { data: employees, error } = await supabase.from('users').select('id, full_name').eq('role', 'employee');
+        if (error) {
+            console.error('Ошибка при загрузке сотрудников:', error);
+            return;
+        }
+        const employeeSelect = document.getElementById('employee-select');
+        if (employeeSelect) {
+            employeeSelect.innerHTML = '<option value="">Все сотрудники</option>';
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = emp.full_name;
+                employeeSelect.appendChild(option);
+            });
+        }
+    }
+
+   async function loadProfileData() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         alert('Вы не авторизованы!');
         return;
     }
 
-    let query = supabase.from('orders').select('*').eq('user_id', user.id);
-    if (startDate && endDate) {
-        query = query.gte('date', startDate).lte('date', endDate);
+    // Загрузка данных пользователя из таблицы 'users'
+    const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('full_name, theme')
+        .eq('id', user.id)
+        .single(); // ✅ Добавлено .single() обратно
+
+    if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Ошибка при загрузке данных профиля:', profileError);
+        document.getElementById('profile-full-name').textContent = 'Ошибка загрузки';
+    } else if (profile) {
+        document.getElementById('profile-full-name').textContent = profile.full_name || user.email.replace('@localapp.com', '');
+        document.getElementById('profile-login').textContent = user.email.replace('@localapp.com', '');
+        document.getElementById('profile-theme-toggle').checked = (profile.theme === 'dark');
+    } else {
+        // Здесь профиль не найден, устанавливаем значения по умолчанию
+        console.warn('Профиль пользователя не найден. Установим значения по умолчанию.');
+        document.getElementById('profile-full-name').textContent = user.email.replace('@localapp.com', '');
+        document.getElementById('profile-login').textContent = user.email.replace('@localapp.com', '');
+        document.getElementById('profile-theme-toggle').checked = false;
     }
-    const { data, error } = await query;
-    const reportResult = document.getElementById('reportResult');
-    if (error) {
-        reportResult.innerHTML = '<p>Ошибка при получении отчета.</p>';
-        console.error("Ошибка при получении отчёта:", error);
+
+    // Расчет общего заработка
+    const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('packages, price')
+        .eq('user_id', user.id);
+
+    if (ordersError) {
+        console.error('Ошибка при расчете заработка:', ordersError);
+        document.getElementById('total-earned').textContent = 'Ошибка';
         return;
     }
-    if (!data || data.length === 0) {
-        reportResult.innerHTML = '<p>Нет данных за выбранный период.</p>';
-        return;
-    }
-
-    let total = 0;
-    let html = '<h3>Суммы по заказам:</h3>';
-    data.forEach(order => {
-        const sum = order.packages * order.price;
-        total += sum;
-        const dateParts = order.date.split('-');
-        const formattedDate = `${dateParts[2]}.${dateParts[1]}`;
-        html += `<div class="report-item"><span style="color: #999;">${formattedDate} </span>${order.title}<span style="color: #999;"> — </span>${order.packages}<span style="color: #999;"> × </span>${parseFloat(order.price)}<span style="color: #999;"> = </span>${parseFloat(sum)}</div><hr class="separator">`;
-    });
-    
-    // **Изменения здесь**
-    const totalRounded = Math.round(total);
-    
-    html += `<p style="font-size: 20px"><b>Итого: ${totalRounded} <span style="color: #999;"> сом </span> </b></p>`;
-    reportResult.innerHTML = html;
-}
-
-    async function loadProfileData() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            alert('Вы не авторизованы!');
-            return;
-        }
-
-        const username = user.email.replace('@localapp.com', '');
-        const password = localStorage.getItem(`password-${username}`);
-
-        document.getElementById('profile-username').textContent = username;
-        document.getElementById('profile-password-display').textContent = password;
-
-        const { data: orders, error } = await supabase.from('orders').select('packages, price').eq('user_id', user.id);
-        if (error) {
-            console.error('Ошибка при расчете заработка:', error);
-            document.getElementById('total-earned').textContent = 'Ошибка';
-            return;
-        }
 
     const totalEarned = orders.reduce((sum, order) => sum + (order.packages * order.price), 0);
-    
-    // **Изменения здесь**
     const totalRounded = Math.round(totalEarned);
     document.getElementById('total-earned').textContent = totalRounded;
-    }
-
-    async function logout() {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error('Ошибка выхода:', error);
-        } else {
-            showAuth();
-        }
-    }
-
-    // --- 4. Event Listeners ---
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const username = e.target.username.value;
-        const password = e.target.password.value;
-        registerUser(username, password);
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const username = e.target.username.value;
-        const password = e.target.password.value;
-        localStorage.setItem(`password-${username}`, password);
-        loginUser(username, password);
-    });
-
-    document.getElementById('ordersContent').addEventListener('click', (event) => {
-        const target = event.target;
-        const orderItem = target.closest('.order-item');
-        if (!orderItem) return;
-        const id = orderItem.dataset.id;
-        if (target.classList.contains('edit-btn')) {
-            const { title, packages, price } = orderItem.dataset;
-            editOrder(id, title, packages, price);
-        } else if (target.classList.contains('delete-btn')) {
-            deleteOrder(id);
-        }
-    });
-
-    document.getElementById('toggle-password-btn').addEventListener('click', () => {
-        const passwordDisplay = document.getElementById('profile-password-display');
-        const passwordDots = document.getElementById('profile-password-dots');
-        const button = document.getElementById('toggle-password-btn');
-        if (passwordDisplay.style.display === 'none') {
-            passwordDisplay.style.display = 'inline';
-            passwordDots.style.display = 'none';
-            button.textContent = 'Скрыть';
-        } else {
-            passwordDisplay.style.display = 'none';
-            passwordDots.style.display = 'inline';
-            button.textContent = 'Показать';
-        }
-    });
-
-    document.querySelector('.logout-btn').addEventListener('click', () => {
-        logout();
-    });
-
-    // **Запускаем проверку сессии и инициализацию полей ввода при загрузке страницы**
-    document.addEventListener('DOMContentLoaded', () => {
-        checkSession();
-
-    });
+}
 </script>
 </body>
 </html>
