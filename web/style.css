@@ -43,7 +43,6 @@ body {
 }
 
 
-input[type="date"],
 input[type="text"],
 input[type="number"],
 button,
@@ -63,10 +62,7 @@ button,
     margin: 5px;
 }
 
-/* Ensure the date input fits */
-input[type="date"] {
-    max-width: 100%;
-}
+
 
 /* Style for individual order items */
 .order-item {
@@ -241,7 +237,32 @@ form {
     gap: 15px;
 }
 
-input[type="date"],
+.input-container {
+    width: 100%;
+    /* Добавляем отступы здесь, чтобы инпут не выходил за границы */
+    padding: 0 10px; 
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    /* Если нужно, добавляем бордер, чтобы было видно границы */
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+}
+
+input[type="date"] {
+    /* Удаляем все стандартные стили, кроме тех, что нужны для выравнивания */
+    border: none;
+    padding: 12px 0;
+    width: 100%;
+    font-size: 1rem;
+    background-color: transparent; /* Убираем фон, чтобы он был как у родителя */
+}
+
+/* Также уберем лишние стили с input[type="date"] */
+input[type="date"] {
+    max-width: none;
+}
+
+
 input[type="text"],
 input[type="number"],
 button,
